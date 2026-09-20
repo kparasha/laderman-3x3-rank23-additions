@@ -1,0 +1,59 @@
+{
+  "hill": "matrix-multiplication-tensor-3x3",
+  "tree_hash": "0e77fdeed4308af7f18aa0a21f685b0c81be56a5",
+  "commit": "e16b6d56d88252269475e0d5e46220b5de5f90fa",
+  "submission_hash": "sha256:60292db345a35e0a1d50eab3e470bd268478c5d09845c9217cc0e1d4682712d5",
+  "submission_git": null,
+  "passed": true,
+  "config": [
+    {
+      "name": "tensor",
+      "value": "3x3-general-matrix-multiplication",
+      "primary": true
+    },
+    {
+      "name": "coefficient_domain",
+      "value": "exact-rationals",
+      "primary": true
+    },
+    {
+      "name": "verification",
+      "value": "729-brent-identities",
+      "primary": true
+    },
+    {
+      "name": "mode",
+      "value": "validation",
+      "primary": false
+    }
+  ],
+  "metrics": [
+    {
+      "name": "rank",
+      "value": 23,
+      "direction": "min"
+    },
+    {
+      "name": "support",
+      "value": 175,
+      "direction": "min"
+    }
+  ],
+  "details": {
+    "brent_identities_checked": 729,
+    "private_replays_checked": 2,
+    "coefficient_domain": "Q"
+  },
+  "params": {},
+  "final": false,
+  "official": true,
+  "official_reason": null,
+  "hill_spec_version": 2,
+  "tool": {
+    "version": "0.11.0",
+    "sha256": "970e4a3fcb74c27e0c56b62efd22b4fab82a755229a8aef8f90bbc00a9cfe275"
+  },
+  "timestamp": "2026-09-20T21:52:18Z",
+  "report_version": 1,
+  "signature": "hmac-sha256:1817f7cdf65e30e56670e885269ac6cab059abd020c013547f1691c84b7c6786"
+}

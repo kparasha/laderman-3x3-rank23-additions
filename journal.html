@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Climb journal — matrix-multiplication-tensor-3x3</title>
+<style>
+  body { font-family: ui-sans-serif, system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; color: #18181b; }
+  h1,h2,h3 { line-height: 1.2; }
+  .status { border: 2px solid #18181b; padding: 1rem 1.25rem; margin: 1rem 0 1.5rem; background: #fafafa; }
+  .status strong { display: inline-block; min-width: 9rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin: 1rem 0; }
+  th, td { border: 1px solid #d4d4d8; padding: 0.4rem 0.55rem; text-align: left; vertical-align: top; }
+  th { background: #f4f4f5; }
+  .unofficial { color: #a16207; }
+  .keep { background: #ecfdf5; }
+  .drop { background: #fafafa; color: #52525b; }
+  .fail { background: #fef2f2; }
+  code { font-family: ui-monospace, monospace; font-size: 0.85em; }
+  .note { font-size: 0.92rem; color: #3f3f46; }
+  svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<h1>matrix-multiplication-tensor-3x3</h1>
+
+<div class="status">
+  <div><strong>Phase</strong> climb (after Lean ladder)</div>
+  <div><strong>Loop</strong> running until interrupted</div>
+  <div><strong>Machine</strong> Apple M2 MacBook Pro (local)</div>
+  <div><strong>Hill tree</strong> <code>0e77fdeed430</code> (local unofficial private fixtures; AutoLab owner private not pulled)</div>
+  <div><strong>Hill baseline</strong> Stapleton60 — rank 23, support <strong>152</strong> (spread 0 on re-score)</div>
+  <div><strong>Additions reference</strong> Sun56 — claimed <strong>56</strong> additions, support 175</div>
+  <div><strong>Current best (hill)</strong> support 152 @ rank 23</div>
+  <div><strong>Smoke eval</strong> ~0.35s wall-clock per attempt on this machine</div>
+</div>
+
+<h2>What is being measured</h2>
+<p>
+The Autolab hill scores exact bilinear decompositions of the general (noncommutative) 3×3 matrix-multiplication tensor over the rationals.
+Primary metric is <code>rank</code> (number of bilinear products, minimize), then <code>support</code> (nonzero coefficients in U,V,W, minimize).
+<strong>Support is not addition count.</strong>
+Today’s user goal is also fewer scalar additions at rank 23 (public best 56); that is tracked separately via SLPs / Lean claimed additions.
+Submission is a directory with a single <code>solution.json</code> of integer/rational factor matrices <code>u,v,w</code>.
+Held-out private replays exist on AutoLab; this machine uses local stub private files so scores here are pipeline-faithful but not the publisher’s private set.
+</p>
+
+<h2>Plan</h2>
+<ol>
+  <li>Lean-verify known ladder (Laderman 98 → … → Sun 56).</li>
+  <li>Score Stapleton as hill baseline (best support among extracted schemes).</li>
+  <li>Search for rank-23 schemes with support &lt; 152 and/or addition SLPs &lt; 56.</li>
+  <li>One idea per commit; every keep requires <code>hills eval</code> + Brent; Lean-check keepers.</li>
+</ol>
+
+<h2>Ladder (Lean / literature)</h2>
+<table>
+  <thead><tr><th>Scheme</th><th>Rank</th><th>Support</th><th>Claimed adds</th><th>Brent (Lean)</th></tr></thead>
+  <tbody>
+    <tr><td>Laderman 1976</td><td>23</td><td>153</td><td>98</td><td>proved</td></tr>
+    <tr><td>Smirnov 2013</td><td>23</td><td>—</td><td>84 naive</td><td>literature claim only</td></tr>
+    <tr><td>Stapleton 2025</td><td>23</td><td>152</td><td>60</td><td>proved</td></tr>
+    <tr><td>Mårtensson–Wagner–Stapleton</td><td>23</td><td>—</td><td>59</td><td>literature claim only</td></tr>
+    <tr><td>Perminov 2025</td><td>23</td><td>175</td><td>58</td><td>proved</td></tr>
+    <tr><td>Sun 2026</td><td>23</td><td>175</td><td>56</td><td>proved</td></tr>
+  </tbody>
+</table>
+
+<h2>Metric over time (hill support @ rank 23)</h2>
+<svg viewBox="0 0 640 160" role="img" aria-label="support over attempts">
+  <line x1="40" y1="20" x2="40" y2="130" stroke="#18181b"/>
+  <line x1="40" y1="130" x2="620" y2="130" stroke="#18181b"/>
+  <text x="8" y="28" font-size="11">152</text>
+  <text x="8" y="130" font-size="11">…</text>
+  <!-- points updated as climb proceeds; baseline at attempt 0 -->
+  <circle cx="80" cy="40" r="4" fill="#059669"/>
+  <text x="70" y="150" font-size="11">0</text>
+</svg>
+
+<h2>Attempts</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Idea</th><th>Rank</th><th>Support</th><th>Adds</th><th>Decision</th><th>Report</th></tr>
+  </thead>
+  <tbody id="attempts">
+    <tr class="keep">
+      <td>000</td><td>smoke Laderman baseline (example)</td><td>23</td><td>153</td><td>98</td><td>pipeline OK (~0.35s)</td>
+      <td><a href="reports/000-smoke-example.json">000-smoke-example.json</a></td>
+    </tr>
+    <tr class="drop">
+      <td>001</td><td>Sun56 (additions SOTA, worse support)</td><td>23</td><td>175</td><td>56</td><td>reference for additions</td>
+      <td><a href="reports/001-sun56.json">001-sun56.json</a></td>
+    </tr>
+    <tr class="drop">
+      <td>002</td><td>Perminov58</td><td>23</td><td>175</td><td>58</td><td>worse support than Stapleton</td>
+      <td><a href="reports/002-perminov58.json">002-perminov58.json</a></td>
+    </tr>
+    <tr class="keep">
+      <td>003/004</td><td>Stapleton60 hill baseline (rescored)</td><td>23</td><td>152</td><td>60</td><td>keep — best support so far; spread 0</td>
+      <td><a href="reports/003-stapleton60.json">003</a> / <a href="reports/004-stapleton60-baseline-b.json">004</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="note">Official hill reports are signed JSON under <code>reports/</code>. Verify with <code>hills verify reports/….json</code>. Dev numbers (Lean claimed additions, local CSE) are labeled unofficial when not from a report.</p>
+
+<h2>Queued / ruled out</h2>
+<ul>
+  <li><strong>Queued:</strong> ternary sparsify Stapleton; flip-graph around Sun SLP for &lt;56 adds; try zeroing ±1 coeffs that do not break Brent.</li>
+  <li><strong>Ruled out for today:</strong> commutative rank-21/22 claims; changing the frozen evaluator; treating support as additions.</li>
+</ul>
+
+<p class="note">Open anytime without interrupting the agent: <code>open journal.html</code></p>
+</body>
+</html>

@@ -1,0 +1,13 @@
+
+matrix-multiplication-tensor-3x3 @ WORKING TREE
+  submission   submissions/smoke-baseline
+  hash         sha256:32ba7ecf9b95…  
+  FAILED       
+  config       tensor=3x3-general-matrix-multiplication*  coefficient_domain=exact-rationals*  verification=729-brent-identities*  mode=validation   (* = primary)
+  unofficial   dirty-tree
+  report       /Users/kshitijkumarparashar/.autolab/hills/runs/matrix-multiplication-tensor-3x3/20260920T214629Z-dc1b8823/report.json
+
+wrote reports/000-smoke-example.json
+real 0.36
+user 0.12
+sys 0.07

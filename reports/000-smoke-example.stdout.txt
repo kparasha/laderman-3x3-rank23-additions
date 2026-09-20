@@ -1,0 +1,46 @@
+{
+  "hill": "matrix-multiplication-tensor-3x3",
+  "tree_hash": null,
+  "commit": null,
+  "submission_hash": "sha256:32ba7ecf9b954d89517913676bfad88a03e51d3b32fa2567e6c0a296ec547402",
+  "submission_git": null,
+  "passed": false,
+  "config": [
+    {
+      "name": "tensor",
+      "value": "3x3-general-matrix-multiplication",
+      "primary": true
+    },
+    {
+      "name": "coefficient_domain",
+      "value": "exact-rationals",
+      "primary": true
+    },
+    {
+      "name": "verification",
+      "value": "729-brent-identities",
+      "primary": true
+    },
+    {
+      "name": "mode",
+      "value": "validation",
+      "primary": false
+    }
+  ],
+  "metrics": [],
+  "details": {
+    "error": "[Errno 2] No such file or directory: '/Users/kshitijkumarparashar/Builds/RSI Hacks/Open Problems Hack - Laderman 3 by 3 matrix multiplication with rank lower than 23/.autolab/hills/matrix-multiplication-tensor-3x3/private/validation.json'"
+  },
+  "params": {},
+  "final": false,
+  "official": false,
+  "official_reason": "dirty-tree",
+  "hill_spec_version": 2,
+  "tool": {
+    "version": "0.11.0",
+    "sha256": "970e4a3fcb74c27e0c56b62efd22b4fab82a755229a8aef8f90bbc00a9cfe275"
+  },
+  "timestamp": "2026-09-20T21:46:30Z",
+  "report_version": 1,
+  "signature": "hmac-sha256:b7e3e0c13ef7d2807952ac1f5a0146b4d919dd9401dde6a521a54d699a01eab5"
+}

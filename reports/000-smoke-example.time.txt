@@ -1,0 +1,28 @@
+
+matrix-multiplication-tensor-3x3 @ WORKING TREE
+  submission   submissions/smoke-baseline
+  hash         sha256:32ba7ecf9b95…  
+  PASSED       rank=23 (min)  support=153 (min)
+  config       tensor=3x3-general-matrix-multiplication*  coefficient_domain=exact-rationals*  verification=729-brent-identities*  mode=validation   (* = primary)
+  unofficial   dirty-tree
+  report       /Users/kshitijkumarparashar/.autolab/hills/runs/matrix-multiplication-tensor-3x3/20260920T214658Z-3bdf2093/report.json
+
+wrote reports/000-smoke-example.json
+        0.35 real         0.12 user         0.07 sys
+            29442048  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               11015  page reclaims
+                1413  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   2  messages sent
+                   2  messages received
+                   2  signals received
+                 173  voluntary context switches
+                1469  involuntary context switches
+           555626756  instructions retired
+           263591891  cycles elapsed
+            16564656  peak memory footprint
