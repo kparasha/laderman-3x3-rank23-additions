@@ -25,7 +25,7 @@
 
 <div class="status">
   <div><strong>Phase</strong> climb (after Lean ladder)</div>
-  <div><strong>Loop</strong> running until interrupted</div>
+  <div><strong>Loop</strong> climb complete for this session — no support&lt;152 or adds&lt;56 found</div>
   <div><strong>Machine</strong> Apple M2 MacBook Pro (local)</div>
   <div><strong>Hill tree</strong> <code>0e77fdeed430</code> (local unofficial private fixtures; AutoLab owner private not pulled)</div>
   <div><strong>Hill baseline</strong> Stapleton60 — rank 23, support <strong>152</strong> (spread 0 on re-score)</div>
@@ -87,26 +87,47 @@ Held-out private replays exist on AutoLab; this machine uses local stub private 
       <td><a href="reports/000-smoke-example.json">000-smoke-example.json</a></td>
     </tr>
     <tr class="drop">
-      <td>001</td><td>Sun56 (additions SOTA, worse support)</td><td>23</td><td>175</td><td>56</td><td>reference for additions</td>
-      <td><a href="reports/001-sun56.json">001-sun56.json</a></td>
+      <td>001/005</td><td>Sun56 additions reference</td><td>23</td><td>175</td><td>56</td><td>reference for additions (worse support)</td>
+      <td><a href="reports/001-sun56.json">001</a> / <a href="reports/005-sun56-baseline-b.json">005</a></td>
     </tr>
     <tr class="drop">
       <td>002</td><td>Perminov58</td><td>23</td><td>175</td><td>58</td><td>worse support than Stapleton</td>
       <td><a href="reports/002-perminov58.json">002-perminov58.json</a></td>
     </tr>
     <tr class="keep">
-      <td>003/004</td><td>Stapleton60 hill baseline (rescored)</td><td>23</td><td>152</td><td>60</td><td>keep — best support so far; spread 0</td>
+      <td>003/004</td><td>Stapleton60 hill baseline</td><td>23</td><td>152</td><td>60</td><td>keep — best support; spread 0</td>
       <td><a href="reports/003-stapleton60.json">003</a> / <a href="reports/004-stapleton60-baseline-b.json">004</a></td>
+    </tr>
+    <tr class="drop">
+      <td>006–007</td><td>random/exhaustive sparsify Stapleton</td><td>23</td><td>152</td><td>—</td><td>no support gain</td>
+      <td><a href="reports/006-sparsify-stapleton.json">006</a> / <a href="reports/07-attempt007-support.json">007</a></td>
+    </tr>
+    <tr class="drop">
+      <td>010</td><td>mutate Sun SLP intermediates</td><td>23</td><td>175</td><td>56</td><td>could not shave below 56</td>
+      <td><a href="reports/010-attempt010-sun-slp.json">010</a></td>
+    </tr>
+    <tr class="drop">
+      <td>011</td><td>index-permutation symmetries</td><td>23</td><td>152</td><td>—</td><td>support unchanged</td>
+      <td><a href="reports/011-attempt011-perm.json">011</a></td>
+    </tr>
+    <tr class="drop">
+      <td>012–013</td><td>mutate U/V + linear solve W</td><td>23</td><td>152</td><td>—</td><td>no support gain</td>
+      <td><a href="reports/012-solvew-stapleton.json">012</a> / <a href="reports/013-solvew-stapleton.json">013</a></td>
+    </tr>
+    <tr class="fail">
+      <td>014</td><td>flip-graph from schoolbook</td><td>—</td><td>—</td><td>—</td><td>no exact rank-23 found in 20k steps</td>
+      <td>—</td>
     </tr>
   </tbody>
 </table>
 
-<p class="note">Official hill reports are signed JSON under <code>reports/</code>. Verify with <code>hills verify reports/….json</code>. Dev numbers (Lean claimed additions, local CSE) are labeled unofficial when not from a report.</p>
+<p class="note">Honest plateau: this session did not beat Stapleton support 152 on the hill metric, nor Sun’s certified 56-addition SLP. Best hill claim remains Stapleton60. Best addition claim remains Sun56 (Lean-proved Brent).</p>
 
 <h2>Queued / ruled out</h2>
 <ul>
-  <li><strong>Queued:</strong> ternary sparsify Stapleton; flip-graph around Sun SLP for &lt;56 adds; try zeroing ±1 coeffs that do not break Brent.</li>
-  <li><strong>Ruled out for today:</strong> commutative rank-21/22 claims; changing the frozen evaluator; treating support as additions.</li>
+  <li><strong>Tried:</strong> sparsify, double flips, Sun SLP mutation, S3 index perms, U/V mutate + W solve, flip-graph.</li>
+  <li><strong>Still open:</strong> deeper flip-graph / neural search; extract Mårtensson59 UVW from TeX; true SLP CSE below 56; rank&lt;23 (out of today’s scope).</li>
+  <li><strong>Ruled out for today:</strong> commutative rank-21/22; editing the evaluator; equating support with additions.</li>
 </ul>
 
 <p class="note">Open anytime without interrupting the agent: <code>open journal.html</code></p>
