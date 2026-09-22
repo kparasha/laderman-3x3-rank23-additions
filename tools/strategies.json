@@ -110,9 +110,9 @@
         "improvements": 0,
         "min_rounds": 2000
       },
-      "status": "pending",
-      "reason": null,
-      "flat_count": 1
+      "status": "retired",
+      "reason": "timed out",
+      "flat_count": 2
     },
     {
       "id": "add_product_perm_cse",
@@ -126,8 +126,9 @@
         "improvements": 0,
         "min_rounds": 500
       },
-      "status": "pending",
-      "reason": null
+      "status": "retired",
+      "reason": "timed out",
+      "flat_count": 2
     },
     {
       "id": "sup_stapleton_orbit_3edit",
@@ -170,8 +171,9 @@
         "improved": 0,
         "min_rounds": 5000
       },
-      "status": "pending",
-      "reason": null
+      "status": "retired",
+      "reason": "finished at support>=152",
+      "flat_count": 2
     },
     {
       "id": "sup_sparsify_burst",
@@ -189,8 +191,9 @@
         "improved": 0,
         "min_rounds": 20000
       },
-      "status": "pending",
-      "reason": null
+      "status": "retired",
+      "reason": "finished at support>=152",
+      "flat_count": 2
     },
     {
       "id": "sup_double_flip",
@@ -208,8 +211,9 @@
         "improved": 0,
         "min_rounds": 50000
       },
-      "status": "pending",
-      "reason": null
+      "status": "retired",
+      "reason": "finished at support>=152",
+      "flat_count": 2
     },
     {
       "id": "rank_flipgraph",
@@ -223,9 +227,202 @@
         "rank23_found": false,
         "min_rounds": 20000
       },
-      "status": "pending",
-      "reason": null,
+      "status": "retired",
+      "reason": "flipgraph found no rank-23",
       "note": "Long-shot; exact rank<23 unlikely from schoolbook flips alone"
+    },
+    {
+      "id": "add_stapleton_cse_signs",
+      "arch": "additions",
+      "tool": "tools/scheme_cse_mutate.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/stapleton60/solution.json",
+        "submissions/director-add-stapleton-cse"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 91,
+      "default_rounds": 4000,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 1000
+      },
+      "status": "retired",
+      "reason": "scheme CSE best=64",
+      "note": "Different factorization than Sun; signflip+CSE toward <56",
+      "flat_count": 2
+    },
+    {
+      "id": "add_perminov_cse_signs",
+      "arch": "additions",
+      "tool": "tools/scheme_cse_mutate.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/perminov58/solution.json",
+        "submissions/director-add-perminov-cse"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 92,
+      "default_rounds": 4000,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 1000
+      },
+      "status": "retired",
+      "reason": "scheme CSE best=66",
+      "flat_count": 2
+    },
+    {
+      "id": "add_laderman_cse_signs",
+      "arch": "additions",
+      "tool": "tools/scheme_cse_mutate.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/smoke-baseline/solution.json",
+        "submissions/director-add-laderman-cse"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 93,
+      "default_rounds": 3000,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 800
+      },
+      "status": "retired",
+      "reason": "scheme CSE best=65",
+      "flat_count": 2
+    },
+    {
+      "id": "add_shave_sun_slp",
+      "arch": "additions",
+      "tool": "tools/shave_sun_slp.py",
+      "args": [],
+      "pass_seed_rounds": true,
+      "default_seed": 94,
+      "default_rounds": 20000,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 5000
+      },
+      "status": "retired",
+      "reason": "run finished without clear progress",
+      "flat_count": 2
+    },
+    {
+      "id": "sup_multiseed_cross",
+      "arch": "support",
+      "tool": "tools/support_multiseed.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/director-sup-multi"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 111,
+      "default_rounds": 120000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 40000
+      },
+      "status": "retired",
+      "reason": "stdout support>=152 improved=0",
+      "note": "Laderman+Sun+Perminov+Stapleton seeds; 2/3/4-edits"
+    },
+    {
+      "id": "sup_laderman_sparsify",
+      "arch": "support",
+      "tool": "tools/search_sparsify.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/smoke-baseline/solution.json",
+        "submissions/director-sup-laderman/solution.json"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 112,
+      "default_rounds": 80000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 30000
+      },
+      "status": "retired",
+      "reason": "finished at support>=152",
+      "flat_count": 2
+    },
+    {
+      "id": "sup_sun_double",
+      "arch": "support",
+      "tool": "tools/search_support.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/sun56/solution.json",
+        "submissions/director-sup-sun/solution.json"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 113,
+      "default_rounds": 80000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 30000
+      },
+      "status": "retired",
+      "reason": "finished at support>=152",
+      "flat_count": 2
+    },
+    {
+      "id": "rank_drop_stapleton",
+      "arch": "rank",
+      "tool": "tools/rank_drop_search.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/stapleton60/solution.json",
+        "submissions/director-rank-drop-stapleton"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 121,
+      "default_rounds": 30000,
+      "sterile_if": {
+        "rank23_found": false,
+        "min_rounds": 5000
+      },
+      "status": "retired",
+      "reason": "timed out",
+      "note": "Delete products from Stapleton and repair residual",
+      "flat_count": 2
+    },
+    {
+      "id": "rank_drop_laderman",
+      "arch": "rank",
+      "tool": "tools/rank_drop_search.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/smoke-baseline/solution.json",
+        "submissions/director-rank-drop-laderman"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 122,
+      "default_rounds": 30000,
+      "sterile_if": {
+        "rank23_found": false,
+        "min_rounds": 5000
+      },
+      "status": "retired",
+      "reason": "timed out",
+      "flat_count": 2
+    },
+    {
+      "id": "rank_flipgraph_long",
+      "arch": "rank",
+      "tool": "tools/flipgraph_search.py",
+      "args": [],
+      "pass_seed_rounds": true,
+      "default_seed": 123,
+      "default_rounds": 150000,
+      "sterile_if": {
+        "rank23_found": false,
+        "min_rounds": 50000
+      },
+      "status": "retired",
+      "reason": "flipgraph found no rank-23",
+      "note": "Longer schoolbook flipgraph, new seed"
     }
   ]
 }

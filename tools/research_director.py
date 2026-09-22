@@ -39,6 +39,14 @@ FIXED_OUTS = {
     "slp_addition_search.py": ROOT / "submissions/attempt015-sun-cse",
     "slp_w_search.py": ROOT / "submissions/attempt015-additions",
     "flipgraph_search.py": ROOT / "submissions/attempt014-flipgraph",
+    "shave_sun_slp.py": ROOT / "submissions/attempt010-sun-slp",
+}
+
+# Tools whose pass_positional[k] is an output *directory* (not solution.json)
+DIR_OUT_TOOLS = {
+    "scheme_cse_mutate.py": 1,
+    "rank_drop_search.py": 1,
+    "support_multiseed.py": 0,
 }
 
 
@@ -108,8 +116,12 @@ def parse_paths(strat: dict):
     tool = Path(strat["tool"]).name
     if out is None and tool in FIXED_OUTS:
         out = FIXED_OUTS[tool]
-    if out is None and strat.get("pass_positional") and len(strat["pass_positional"]) >= 2:
-        out = ROOT / Path(strat["pass_positional"][1]).parent
+    pos = strat.get("pass_positional") or []
+    if out is None and tool in DIR_OUT_TOOLS and len(pos) > DIR_OUT_TOOLS[tool]:
+        out = ROOT / pos[DIR_OUT_TOOLS[tool]]
+    elif out is None and len(pos) >= 2:
+        p = Path(pos[1])
+        out = ROOT / (p.parent if p.suffix == ".json" else p)
     return ck_path, out, logp
 
 
@@ -135,17 +147,32 @@ def diagnose_from_artifacts(strat: dict) -> dict:
     rule = strat.get("sterile_if") or {}
 
     if arch == "additions":
-        best = (ck or {}).get("best_total") or (cert or {}).get("certified_cost") or 56
+        best = (ck or {}).get("best_total") or (cert or {}).get("certified_cost")
+        if best is None and out:
+            cost_j = read_json(out / "slp_cost.json")
+            if cost_j:
+                best = cost_j.get("total")
+        best = best if best is not None else 56
         scored = (ck or {}).get("scored") or 0
         improvements = (ck or {}).get("improvements") or 0
-        if cert and cert.get("improved"):
-            improvements = max(improvements, 1)
         hist = (ck or {}).get("hist") or {}
+        if cert:
+            if cert.get("improved") or (cert.get("certified_cost") is not None and cert["certified_cost"] < 56):
+                improvements = max(improvements, 1)
+            improvements = max(improvements, int(cert.get("improvements") or 0))
+            ch = cert.get("hist") or {}
+            if ch and scored == 0:
+                scored = sum(int(v) for v in ch.values())
+                hist = ch
         le56 = sum(int(v) for k, v in hist.items() if str(k).isdigit() and int(k) <= 56)
         diag.update(best=best, scored=scored, improvements=improvements, le56_mass=le56)
         min_n = rule.get("min_scored") or rule.get("min_rounds", 20000)
-        if improvements > 0 or best < 56:
+        if best < 56:
             diag["label"] = "progress"
+        elif improvements > 0 and best >= 56:
+            # beat scheme baseline but not Sun-56 — still flat vs hill goal
+            diag["label"] = "flat"
+            diag["missing"] = f"beat scheme CSE but still {best}>=56"
         elif scored >= min_n and le56 == 0 and improvements == 0:
             diag["label"] = "sterile"
             diag["missing"] = "no mass at cost<=56; need new factorization / SLP idea"
@@ -157,13 +184,17 @@ def diagnose_from_artifacts(strat: dict) -> dict:
 
     elif arch == "support":
         best = (ck or {}).get("best_support")
+        if best is None and cert:
+            best = cert.get("best_support") or cert.get("support")
         if best is None and sol and "u" in sol:
             best = sum(x != 0 for M in (sol["u"], sol["v"], sol["w"]) for r in M for x in r)
         if best is None:
-            best = (cert or {}).get("support") or 152
+            best = 152
         improved = (ck or {}).get("improved") or 0
-        if cert and cert.get("improved"):
-            improved = max(improved, 1)
+        if cert:
+            improved = max(improved, int(cert.get("improvements") or 0))
+            if cert.get("improved"):
+                improved = max(improved, 1)
         if best < 152:
             improved = max(improved, 1)
         tried = (ck or {}).get("tried") or (ck or {}).get("last_e") or 0
@@ -178,8 +209,8 @@ def diagnose_from_artifacts(strat: dict) -> dict:
             diag["label"] = "progress"
         elif tried >= min_n and improved == 0:
             diag["label"] = "sterile"
-            diag["missing"] = "Stapleton edit ball exhausted; need new seed scheme"
-        elif sol is not None:
+            diag["missing"] = "edit ball exhausted; need new seed scheme"
+        elif sol is not None or cert is not None:
             diag["label"] = "flat"
             diag["missing"] = "finished at support>=152"
         elif tried > 0:
@@ -188,16 +219,27 @@ def diagnose_from_artifacts(strat: dict) -> dict:
             diag["label"] = "unrun"
 
     else:  # rank
-        rank = len(sol["u"]) if sol and "u" in sol else None
-        diag["best"] = rank if rank is not None else 23
-        if rank is not None and rank < 23:
+        rank_cert = read_json(out / "rank_certificate.json") if out else None
+        if rank_cert and rank_cert.get("exact") and rank_cert.get("best_rank", 99) < 23:
+            diag["best"] = int(rank_cert["best_rank"])
             diag["label"] = "progress"
-        elif rank == 23:
-            diag["label"] = "flat"
-            diag["missing"] = "rank-23 only; need rank descent"
+        elif rank_cert is not None:
+            diag["best"] = int(rank_cert.get("best_rank") or 23)
+            diag["label"] = "sterile"
+            diag["missing"] = (
+                f"no exact rank<23 (near_res={rank_cert.get('best_near_residual')})"
+            )
         else:
-            diag["label"] = "unrun"
-            diag["missing"] = "need non-random rank method / literature"
+            rank = len(sol["u"]) if sol and "u" in sol else None
+            diag["best"] = rank if rank is not None else 23
+            if rank is not None and rank < 23:
+                diag["label"] = "progress"
+            elif rank == 23:
+                diag["label"] = "flat"
+                diag["missing"] = "rank-23 only; need rank descent"
+            else:
+                diag["label"] = "unrun"
+                diag["missing"] = "need non-random rank method / literature"
 
     return diag
 
@@ -241,7 +283,13 @@ def run_strategy(strat: dict, timeout_s: float | None) -> dict:
         if a in ("--log", "--checkpoint") and i + 1 < len(args):
             (ROOT / args[i + 1]).parent.mkdir(parents=True, exist_ok=True)
     for p in strat.get("pass_positional") or []:
-        Path(p).parent.mkdir(parents=True, exist_ok=True)
+        path = Path(p)
+        tool = Path(strat["tool"]).name
+        # mkdir parents for solution.json targets; mkdir the dir itself for dir-outs
+        if tool in DIR_OUT_TOOLS and path.suffix != ".json":
+            (ROOT / path).mkdir(parents=True, exist_ok=True)
+        else:
+            (ROOT / path).parent.mkdir(parents=True, exist_ok=True)
 
     t0 = time.time()
     proc = subprocess.Popen(
@@ -367,7 +415,7 @@ def refine_label_from_stdout(strat: dict, diag: dict, run_info: dict) -> None:
         if "STERILE" in tail or ("le56=0/" in tail and "improvements=0" in tail):
             diag["label"] = "sterile"
             diag["missing"] = diag.get("missing") or "STERILE/le56=0 in stdout"
-        m = re.search(r"(?:best_total|certified_cost)=(\d+)", tail)
+        m = re.search(r"(?:best_total|certified_cost|best_cost|best)=(\d+)", tail)
         if m:
             diag["best"] = int(m.group(1))
         if "cost ->" in tail and re.search(r"cost ->\s*(\d+)", tail):
@@ -375,21 +423,54 @@ def refine_label_from_stdout(strat: dict, diag: dict, run_info: dict) -> None:
             if vals and min(vals) < 56:
                 diag["label"] = "progress"
                 diag["best"] = min(vals)
+        # scheme_cse done line
+        m2 = re.search(r"done best=(\d+).*improvements=(\d+).*le56=(\d+)", tail)
+        if m2:
+            b, imp, le = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+            diag["best"] = b
+            if b < 56:
+                diag["label"] = "progress"
+            elif le == 0:
+                # no mass at/under Sun56 — sterile for hill goal even if scheme CSE improved
+                diag["label"] = "sterile"
+                diag["missing"] = f"scheme CSE best={b} le56=0"
+            else:
+                diag["label"] = "flat"
+                diag["missing"] = f"scheme CSE best={b}"
     elif strat["arch"] == "support":
+        m_e = re.findall(r"status e=(\d+)", tail)
+        if m_e:
+            diag["tried"] = max(int(x) for x in m_e)
         if re.search(r"support\s*->\s*(\d+)", tail):
             vals = [int(x) for x in re.findall(r"support\s*->\s*(\d+)", tail)]
             if vals and min(vals) < 152:
                 diag["label"] = "progress"
                 diag["best"] = min(vals)
+        elif re.search(r"best_support=(\d+).*improved=(\d+)", tail):
+            m = re.search(r"best_support=(\d+).*improved=(\d+)", tail)
+            diag["best"] = int(m.group(1))
+            if int(m.group(1)) < 152:
+                diag["label"] = "progress"
+            elif int(m.group(2)) == 0:
+                diag["label"] = "sterile"
+                diag["missing"] = "stdout support>=152 improved=0"
         elif "support=152" in tail and "improved=0" in tail:
             diag["label"] = "sterile"
             diag["missing"] = "stdout support=152 improved=0"
     elif strat["arch"] == "rank":
-        if "rank 22" in tail or "rank 21" in tail:
+        if re.search(r"HIT.*rank=(\d+)", tail):
+            ranks = [int(x) for x in re.findall(r"HIT.*?rank=(\d+)", tail)]
+            if ranks and min(ranks) < 23:
+                diag["label"] = "progress"
+                diag["best"] = min(ranks)
+        elif "rank 22" in tail or "rank 21" in tail:
             diag["label"] = "progress"
         elif "no rank-23" in tail or "no exact" in tail.lower():
             diag["label"] = "sterile"
             diag["missing"] = "flipgraph found no rank-23"
+        elif "'exact': False" in tail or '"exact": false' in tail.lower() or "exact': False" in tail:
+            diag["label"] = "sterile"
+            diag["missing"] = "rank-drop found no exact lower rank"
 
 
 def cycle_once(reg: dict, st: dict, timeout_s: float | None, dry_run: bool) -> bool:
@@ -430,6 +511,12 @@ def cycle_once(reg: dict, st: dict, timeout_s: float | None, dry_run: bool) -> b
     append_ledger(event)
     save_state(st)
     update_journal_snippet(st, event)
+    pending_n = sum(1 for s in load_registry()["strategies"] if s.get("status") == "pending")
+    log(
+        f"SCOREBOARD adds={st['best'].get('additions')} support={st['best'].get('support')} "
+        f"rank={st['best'].get('rank')} | pending={pending_n} | "
+        f"last={strat['id']}→{diag['label']}"
+    )
     log(
         f"CYCLE {st['cycle']} done id={strat['id']} label={diag['label']} "
         f"best={diag.get('best')} missing={diag.get('missing')}"
