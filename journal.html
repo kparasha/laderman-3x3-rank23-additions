@@ -24,15 +24,40 @@
 <h1>matrix-multiplication-tensor-3x3</h1>
 
 <div class="status">
-  <div><strong>Phase</strong> climb (after Lean ladder)</div>
-  <div><strong>Loop</strong> climb complete for this session — no support&lt;152 or adds&lt;56 found</div>
+  <div><strong>Phase</strong> pure-Python auto-research director</div>
+  <div><strong>Loop</strong> director cycle=1 · best adds=56 support=152 rank=23 · last=add_slp_addition_search (flat)</div>
   <div><strong>Machine</strong> Apple M2 MacBook Pro (local)</div>
   <div><strong>Hill tree</strong> <code>0e77fdeed430</code> (local unofficial private fixtures; AutoLab owner private not pulled)</div>
-  <div><strong>Hill baseline</strong> Stapleton60 — rank 23, support <strong>152</strong> (spread 0 on re-score)</div>
-  <div><strong>Additions reference</strong> Sun56 — claimed <strong>56</strong> additions, support 175</div>
-  <div><strong>Current best (hill)</strong> support 152 @ rank 23</div>
-  <div><strong>Smoke eval</strong> ~0.35s wall-clock per attempt on this machine</div>
+  <div><strong>Primary objective</strong> certified SLP additions ≤55 @ rank 23; secondary hill support &lt;152</div>
+  <div><strong>Additions baseline</strong> Sun56 — <strong>56</strong> (note: W nullspace dim=0 given U,V — cannot vary W alone)</div>
+  <div><strong>Hill baseline</strong> Stapleton60 — support <strong>152</strong></div>
+  <div><strong>Director</strong> <code>python3 -u tools/research_director.py</code> · registry <code>tools/strategies.json</code> · ledger <code>logs/experiments.jsonl</code></div>
+  <div><strong>Checkpoints</strong> ≤10 min / on improve → <code>logs/checkpoints/</code>; legacy resume: <code>bash tools/resume_overnight.sh</code></div>
+  <div><strong>Smoke eval</strong> ~0.35s per hills eval</div>
 </div>
+
+<h2>Pivot schedule (when to change strategy)</h2>
+<table>
+  <thead><tr><th>Objective</th><th>Keep current method until…</th><th>Then try…</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Additions</strong> (total ≤55)</td>
+      <td>Affine UV-mutate run: mass at ≤56 in histogram, or best drops. Sterile stop if scored≥200k and min≥57.</td>
+      <td>Different factorization (e.g. extract Mårtensson59); not more Sun-W-only CSE.</td>
+    </tr>
+    <tr>
+      <td><strong>Support</strong> &lt;152</td>
+      <td>Orbit+2/3-edit overnight (2M). Visible via accept_rate even if best stays 152.</td>
+      <td>If still 152: literature schemes / longer flip-graph; weekly <code>hills eval</code> re-score.</td>
+    </tr>
+    <tr>
+      <td><strong>Rank</strong> &lt;23</td>
+      <td>Out of overnight scope.</td>
+      <td>New math idea (months-scale).</td>
+    </tr>
+  </tbody>
+</table>
+<p class="note">2026-09-21: signflip+greedy W CSE sterile (always ≥57). W affine nullspace for Sun is <strong>dim 0</strong>; Track A mutates U/V then re-solves W. Support Track B: 26-orbit seed + 2/3-edits (~9% Brent-ok accept rate on smoke).</p>
 
 <h2>What is being measured</h2>
 <p>
@@ -46,11 +71,13 @@ Held-out private replays exist on AutoLab; this machine uses local stub private 
 
 <h2>Plan</h2>
 <ol>
-  <li>Lean-verify known ladder (Laderman 98 → … → Sun 56).</li>
-  <li>Score Stapleton as hill baseline (best support among extracted schemes).</li>
-  <li>Search for rank-23 schemes with support &lt; 152 and/or addition SLPs &lt; 56.</li>
-  <li>One idea per commit; every keep requires <code>hills eval</code> + Brent; Lean-check keepers.</li>
+  <li>Lean-verify known ladder (Laderman 98 → … → Sun 56). Done.</li>
+  <li>Pure-Python director loops: run bounded strategy → diagnose (progress/flat/sterile) → retire → pick next arch priority additions→support→rank.</li>
+  <li>Registry retires sterile Sun W-CSE / W-mutate / UV-affine / Stapleton orbit+3edit from overnight evidence.</li>
+  <li>Keeper: Brent=0 and (cost&lt;56 or support&lt;152 or rank&lt;23) → <code>hills eval</code> + journal; Lean for addition keepers.</li>
 </ol>
+
+<p class="note">Monitor: <code>tail -f logs/director.log logs/experiments.jsonl</code> · Start: <code>python3 -u tools/research_director.py --max-cycles 20 --timeout 1800</code></p>
 
 <h2>Ladder (Lean / literature)</h2>
 <table>
@@ -114,20 +141,29 @@ Held-out private replays exist on AutoLab; this machine uses local stub private 
       <td>012–013</td><td>mutate U/V + linear solve W</td><td>23</td><td>152</td><td>—</td><td>no support gain</td>
       <td><a href="reports/012-solvew-stapleton.json">012</a> / <a href="reports/013-solvew-stapleton.json">013</a></td>
     </tr>
-    <tr class="fail">
-      <td>014</td><td>flip-graph from schoolbook</td><td>—</td><td>—</td><td>—</td><td>no exact rank-23 found in 20k steps</td>
+    <tr class="drop">
+      <td>016</td><td>Sun W signflip+CSE / W-mutate overnight</td><td>23</td><td>175</td><td>56</td><td>sterile (CSE≥57; mutate accepted=0)</td>
       <td>—</td>
+    </tr>
+    <tr>
+      <td>017</td><td>UV-mutate + W-solve + multi-seed CSE (running)</td><td>23</td><td>—</td><td>56 best</td><td>in progress — hist mass at 66–67</td>
+      <td><code>logs/w-affine-overnight.log</code></td>
+    </tr>
+    <tr>
+      <td>018</td><td>Stapleton orbit + 2/3-edit support (running)</td><td>23</td><td>152</td><td>—</td><td>in progress — accept_rate≈8.5%, improved=0</td>
+      <td><code>logs/support-overnight.log</code></td>
     </tr>
   </tbody>
 </table>
 
-<p class="note">Honest plateau: this session did not beat Stapleton support 152 on the hill metric, nor Sun’s certified 56-addition SLP. Best hill claim remains Stapleton60. Best addition claim remains Sun56 (Lean-proved Brent).</p>
+<p class="note">2026-09-21: mutate/CSE exhausted. Dual-track launched: attempt017 affine UV-mutate; attempt018 support orbit+3edit. Honest plateau until a keeper appears.</p>
 
 <h2>Queued / ruled out</h2>
 <ul>
-  <li><strong>Tried:</strong> sparsify, double flips, Sun SLP mutation, S3 index perms, U/V mutate + W solve, flip-graph.</li>
-  <li><strong>Still open:</strong> deeper flip-graph / neural search; extract Mårtensson59 UVW from TeX; true SLP CSE below 56; rank&lt;23 (out of today’s scope).</li>
-  <li><strong>Ruled out for today:</strong> commutative rank-21/22; editing the evaluator; equating support with additions.</li>
+  <li><strong>Tried:</strong> sparsify, double flips, Sun SLP mutation, S3 index perms, U/V+W-solve for support, flip-graph, signflip+greedy W CSE, W schedule mutate.</li>
+  <li><strong>Running:</strong> UV-mutate + W-solve additions (hist); Stapleton orbit + 2/3-edit support.</li>
+  <li><strong>Still open:</strong> extract Mårtensson59; deeper flip-graph; rank&lt;23.</li>
+  <li><strong>Ruled out:</strong> commutative rank-21/22; editing evaluator; equating support with additions; W-only affine (nullspace dim 0).</li>
 </ul>
 
 <p class="note">Open anytime without interrupting the agent: <code>open journal.html</code></p>

@@ -1,0 +1,231 @@
+{
+  "arches": {
+    "additions": {
+      "goal": "certified SLP cost < 56 at rank 23, Brent=0",
+      "baseline": 56,
+      "metric": "certified_cost"
+    },
+    "support": {
+      "goal": "support < 152 at rank 23, Brent=0",
+      "baseline": 152,
+      "metric": "support"
+    },
+    "rank": {
+      "goal": "rank < 23 exact bilinear decomposition",
+      "baseline": 23,
+      "metric": "rank"
+    }
+  },
+  "strategies": [
+    {
+      "id": "add_w_cse_signflip",
+      "arch": "additions",
+      "tool": "tools/slp_w_cse_overnight.py",
+      "args": [
+        "--trials",
+        "50000",
+        "--seed",
+        "42",
+        "--status-every",
+        "5000",
+        "--log",
+        "logs/director-add-cse.log",
+        "--out",
+        "submissions/director-add-cse",
+        "--checkpoint",
+        "logs/checkpoints/director-add-cse.json"
+      ],
+      "sterile_if": {
+        "improvements": 0,
+        "min_scored": 10000
+      },
+      "status": "retired",
+      "reason": "signflip+greedy W CSE always lands >=57; overnight 4.4M improvements=0"
+    },
+    {
+      "id": "add_w_mutate",
+      "arch": "additions",
+      "tool": "tools/slp_w_mutate.py",
+      "args": [
+        "--rounds",
+        "500000",
+        "--seed",
+        "3",
+        "--status-every",
+        "50000",
+        "--log",
+        "logs/director-add-mutate.log",
+        "--out",
+        "submissions/director-add-mutate",
+        "--checkpoint",
+        "logs/checkpoints/director-add-mutate.json"
+      ],
+      "sterile_if": {
+        "accepted": 0,
+        "min_rounds": 100000
+      },
+      "status": "retired",
+      "reason": "2M rounds accepted=0 on Sun W schedule"
+    },
+    {
+      "id": "add_uv_mutate_solve_w",
+      "arch": "additions",
+      "tool": "tools/slp_w_affine.py",
+      "args": [
+        "--trials",
+        "100000",
+        "--seed",
+        "11",
+        "--status-every",
+        "2000",
+        "--cse-seeds",
+        "1",
+        "--sterile-after",
+        "50000",
+        "--max-edits",
+        "2",
+        "--log",
+        "logs/director-add-affine.log",
+        "--out",
+        "submissions/attempt017-w-affine",
+        "--checkpoint",
+        "logs/checkpoints/affine_checkpoint.json"
+      ],
+      "sterile_if": {
+        "le56_mass": 0,
+        "min_scored": 20000
+      },
+      "status": "retired",
+      "reason": "seeded from checkpoint scored=46327 le56=0"
+    },
+    {
+      "id": "add_slp_addition_search",
+      "arch": "additions",
+      "tool": "tools/slp_addition_search.py",
+      "args": [],
+      "pass_seed_rounds": true,
+      "default_seed": 31,
+      "default_rounds": 800,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 2000
+      },
+      "status": "pending",
+      "reason": null,
+      "flat_count": 1
+    },
+    {
+      "id": "add_product_perm_cse",
+      "arch": "additions",
+      "tool": "tools/slp_w_search.py",
+      "args": [],
+      "pass_seed_rounds": true,
+      "default_seed": 41,
+      "default_rounds": 400,
+      "sterile_if": {
+        "improvements": 0,
+        "min_rounds": 500
+      },
+      "status": "pending",
+      "reason": null
+    },
+    {
+      "id": "sup_stapleton_orbit_3edit",
+      "arch": "support",
+      "tool": "tools/support_overnight.py",
+      "args": [
+        "--edits",
+        "500000",
+        "--seed",
+        "21",
+        "--status-every",
+        "20000",
+        "--log",
+        "logs/director-sup-orbit.log",
+        "--out",
+        "submissions/attempt018-support",
+        "--checkpoint",
+        "logs/checkpoints/support_checkpoint.json"
+      ],
+      "sterile_if": {
+        "improved": 0,
+        "min_edits": 200000
+      },
+      "status": "retired",
+      "reason": "seeded from checkpoint tried=2000000 improved=0"
+    },
+    {
+      "id": "sup_solve_w_mutate_uv",
+      "arch": "support",
+      "tool": "tools/solve_w_search.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/stapleton60/solution.json",
+        "submissions/director-sup-solvew/solution.json"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 51,
+      "default_rounds": 10000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 5000
+      },
+      "status": "pending",
+      "reason": null
+    },
+    {
+      "id": "sup_sparsify_burst",
+      "arch": "support",
+      "tool": "tools/search_sparsify.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/stapleton60/solution.json",
+        "submissions/director-sup-sparsify/solution.json"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 61,
+      "default_rounds": 50000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 20000
+      },
+      "status": "pending",
+      "reason": null
+    },
+    {
+      "id": "sup_double_flip",
+      "arch": "support",
+      "tool": "tools/search_support.py",
+      "args": [],
+      "pass_positional": [
+        "submissions/stapleton60/solution.json",
+        "submissions/director-sup-double/solution.json"
+      ],
+      "pass_seed_rounds": true,
+      "default_seed": 71,
+      "default_rounds": 100000,
+      "sterile_if": {
+        "improved": 0,
+        "min_rounds": 50000
+      },
+      "status": "pending",
+      "reason": null
+    },
+    {
+      "id": "rank_flipgraph",
+      "arch": "rank",
+      "tool": "tools/flipgraph_search.py",
+      "args": [],
+      "pass_seed_rounds": true,
+      "default_seed": 81,
+      "default_rounds": 50000,
+      "sterile_if": {
+        "rank23_found": false,
+        "min_rounds": 20000
+      },
+      "status": "pending",
+      "reason": null,
+      "note": "Long-shot; exact rank<23 unlikely from schoolbook flips alone"
+    }
+  ]
+}
