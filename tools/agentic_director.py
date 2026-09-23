@@ -5,7 +5,7 @@ Outer Python loop + durable local agent that improvises from the experiment
 ledger (not a fixed strategies.json queue).
 
   .venv/bin/python -u tools/agentic_director.py --once
-  .venv/bin/python -u tools/agentic_director.py --max-cycles 20 --timeout 2400
+  .venv/bin/python -u tools/agentic_director.py --max-cycles 20 --timeout 3600 --timeout-max 5400
   bash tools/resume_overnight.sh   # caffeinate-wrapped overnight
 
 Auth: CURSOR_API_KEY in the environment or a gitignored .env at repo root.
@@ -31,9 +31,12 @@ JOURNAL = ROOT / "journal.html"
 DIR_LOG = ROOT / "logs" / "director.log"
 CYCLE_RESULT = ROOT / "logs" / "agent_cycle_result.json"
 LEARNINGS = ROOT / "tools" / "learnings.md"
+HEARTBEAT = ROOT / "logs" / "agent_heartbeat.json"
 
 STOP = False
 DEFAULT_MODEL = "composer-2.5"
+DEFAULT_TIMEOUT = 3600.0
+DEFAULT_TIMEOUT_MAX = 5400.0
 
 STERILE_FACTS = """
 Hard facts (do not re-run these neighborhoods with the same seeds/moves):
@@ -159,7 +162,249 @@ def recent_tool_files(limit: int = 15) -> list[str]:
     return [str(p.relative_to(ROOT)) for p in tools[:limit]]
 
 
-def build_brief(st: dict, timeout_s: float) -> str:
+def _is_timeout_row(r: dict) -> bool:
+    if r.get("timed_out"):
+        return True
+    miss = str(r.get("missing") or "").lower()
+    return miss in ("timed_out", "timed out") or "timed out" in miss
+
+
+def _is_crash_row(r: dict) -> bool:
+    return r.get("label") == "crashed" or _is_timeout_row(r)
+
+
+def read_heartbeat() -> dict | None:
+    if not HEARTBEAT.exists():
+        return None
+    try:
+        return json.loads(HEARTBEAT.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def last_hypothesis_before_crash(rows: list[dict]) -> str | None:
+    """Hypothesis from the sterile/progress row immediately before a crash streak."""
+    for i in range(len(rows) - 1, -1, -1):
+        if not _is_crash_row(rows[i]):
+            continue
+        for j in range(i - 1, -1, -1):
+            hyp = rows[j].get("hypothesis")
+            if hyp and rows[j].get("label") in ("sterile", "progress", "flat"):
+                return str(hyp)[:200]
+            if _is_crash_row(rows[j]):
+                continue
+            break
+    return None
+
+
+def opportunistic_crash_brief(st: dict, budget: dict) -> str:
+    """Return a short post-mortem block only when the ledger suggests improvising.
+
+    Silent (empty) when recent history is healthy — do not nag every cycle.
+    """
+    rows = [r for r in tail_ledger(30) if r.get("strategy_id") == "agentic"]
+    if not rows:
+        return ""
+
+    recent = rows[-8:]
+    crashes = [r for r in recent if _is_crash_row(r)]
+    if not crashes and not st.get("crashed_hint"):
+        return ""
+
+    tips: list[str] = []
+    n_to = sum(1 for r in recent if _is_timeout_row(r))
+    n_active = sum(
+        1
+        for r in recent
+        if "active run" in str(r.get("missing") or "").lower()
+        or "active run" in str(r.get("error") or "").lower()
+    )
+    n_detach = sum(
+        1
+        for r in recent
+        if "detach" in str(r.get("missing") or "").lower()
+        or "detach" in str(r.get("error") or "").lower()
+    )
+    n_mid = sum(
+        1
+        for r in recent
+        if "mid-cycle" in str(r.get("missing") or "").lower()
+        or "run dead" in str(r.get("missing") or "").lower()
+    )
+
+    # Only speak when something actionable happened recently
+    last = recent[-1] if recent else {}
+    last_was_bad = _is_crash_row(last) or bool(st.get("crashed_hint"))
+    consec = int(st.get("consecutive_timeouts") or 0)
+    # Opportunistic: skip entirely on a healthy streak (no open crash hint)
+    if not last_was_bad and consec == 0 and not st.get("crashed_hint"):
+        return ""
+    if not last_was_bad and n_to < 1 and n_active < 1 and n_detach < 1 and n_mid < 1:
+        return ""
+
+    if n_to >= 1 or budget.get("mode") in ("wrap", "extend"):
+        tips.append(
+            "Timeout post-mortem: last wall-clock cancel(s) usually mean the experiment was "
+            "unbounded (long search / no early result file). This cycle: smoke-first, write "
+            "agent_cycle_result.json before any multi-hour tool, keep agent_heartbeat.json fresh."
+        )
+        hyp = last_hypothesis_before_crash(rows)
+        if hyp:
+            tips.append(
+                f"Do NOT relaunch the same open-ended search that timed out. "
+                f"Nearby prior hyp (context only): {hyp}"
+            )
+        hb = read_heartbeat()
+        if hb and hb.get("status"):
+            tips.append(
+                f"Last heartbeat before cancel/restart: status={hb.get('status')} "
+                f"eta_s={hb.get('eta_s')} — resume that thread only if you can finish under budget."
+            )
+
+    if n_active >= 1 or n_detach >= 1 or n_mid >= 1:
+        tips.append(
+            "Lifecycle post-mortem: active-run / detached / mid-cycle dead runs are director "
+            "infra issues — force a clean agent if needed, do not invent a duplicate hypothesis "
+            "for the crashed cycle; start a new bounded one."
+        )
+
+    if not tips:
+        return ""
+
+    # Opportunistic learnings append — only once per crash reason fingerprint
+    fingerprint = f"to={n_to}|active={n_active}|detach={n_detach}|mid={n_mid}|mode={budget.get('mode')}"
+    if st.get("last_crash_brief_fp") != fingerprint and last_was_bad:
+        st["last_crash_brief_fp"] = fingerprint
+        append_learning(
+            f"crash-brief {fingerprint}: "
+            + ("; ".join(t.split(":")[0] for t in tips[:3]))
+        )
+        save_state(st)
+
+    return (
+        "\nOPPORTUNISTIC CRASH POST-MORTEM (use only if it helps this cycle; ignore if irrelevant):\n"
+        + "\n".join(f"- {t}" for t in tips)
+        + "\n"
+    )
+
+
+def choose_cycle_budget(
+    base_timeout: float,
+    timeout_max: float,
+    st: dict,
+) -> dict:
+    """Pick wall-clock budget + brief mode from recent ledger outcomes.
+
+    Modes:
+      tight   — recent cycles finish fast; demand smoke-scale experiments
+      normal  — default
+      wrap    — last cycle timed out once; demand early result write + modest wall
+      extend  — repeated timeouts while agent was working; longer wall + still demand bounds
+    """
+    rows = [r for r in tail_ledger(24) if r.get("strategy_id") == "agentic"]
+    recent = rows[-6:]
+    n_to = sum(
+        1
+        for r in recent
+        if r.get("timed_out") or r.get("missing") == "timed_out"
+    )
+    sterile_elapsed = [
+        float(r["elapsed_s"])
+        for r in recent
+        if r.get("label") == "sterile" and isinstance(r.get("elapsed_s"), (int, float))
+    ]
+    consecutive = int(st.get("consecutive_timeouts") or 0)
+    if n_to:
+        # refresh from trailing timeouts at end of ledger
+        consec = 0
+        for r in reversed(rows):
+            if r.get("timed_out") or r.get("missing") == "timed_out":
+                consec += 1
+            elif r.get("label") in ("sterile", "progress", "flat"):
+                break
+        consecutive = max(consecutive, consec)
+
+    mode = "normal"
+    timeout = float(base_timeout)
+    if consecutive >= 2:
+        mode = "extend"
+        timeout = min(float(timeout_max), base_timeout * 1.5)
+    elif consecutive == 1 or n_to >= 1:
+        mode = "wrap"
+        timeout = min(float(timeout_max), max(base_timeout, 3000.0))
+    elif len(sterile_elapsed) >= 3 and sum(sterile_elapsed) / len(sterile_elapsed) < 600:
+        mode = "tight"
+        timeout = min(base_timeout, 2400.0)
+
+    soft_at = timeout * 0.72
+    grace_s = min(900.0, timeout * 0.28)
+    notes = {
+        "tight": (
+            "BUDGET MODE=tight: recent cycles finish in minutes. "
+            "Run a SMOKE-SCALE experiment only (≤2–5 min compute: e.g. ≤2k rounds / tiny beam). "
+            "Write agent_cycle_result.json as soon as the smoke finishes — do not launch multi-hour searches."
+        ),
+        "normal": (
+            "BUDGET MODE=normal: one bounded experiment. Prefer a quick smoke first, then at most one "
+            "scaled run that fits comfortably under the wall clock. Update logs/agent_heartbeat.json "
+            "every few minutes while a long tool runs."
+        ),
+        "wrap": (
+            "BUDGET MODE=wrap: the previous cycle TIMED OUT. This cycle MUST finish with a result file. "
+            "Do NOT start open-ended searches. Smoke-only (≤10 min), write agent_cycle_result.json early, stop. "
+            "Keep logs/agent_heartbeat.json fresh if anything runs >2 min."
+        ),
+        "extend": (
+            "BUDGET MODE=extend: repeated timeouts — wall clock is longer THIS cycle, but you still must "
+            "bound work. Split: (1) write a tiny tool, (2) smoke ≤5 min, (3) write result. "
+            "If a longer run is essential, update logs/agent_heartbeat.json every 2–3 min with status+eta_s "
+            "so the outer director can grant grace instead of cancelling."
+        ),
+    }
+    return {
+        "mode": mode,
+        "timeout_s": timeout,
+        "soft_at": soft_at,
+        "grace_s": grace_s,
+        "timeout_max": float(timeout_max),
+        "consecutive_timeouts": consecutive,
+        "note": notes[mode],
+    }
+
+
+def agent_showing_progress(cycle_started_ts: float | None, stale_s: float = 180.0) -> tuple[bool, str]:
+    """True if heartbeat / result / tools look freshly touched since cycle start."""
+    now = time.time()
+    started = float(cycle_started_ts or 0)
+
+    if HEARTBEAT.exists():
+        try:
+            hb = json.loads(HEARTBEAT.read_text(encoding="utf-8"))
+            hb_ts = float(hb.get("ts") or HEARTBEAT.stat().st_mtime)
+            if hb_ts >= started - 1 and (now - hb_ts) <= stale_s:
+                return True, f"heartbeat age={now - hb_ts:.0f}s status={hb.get('status')}"
+        except Exception:
+            if HEARTBEAT.stat().st_mtime >= started - 1 and (now - HEARTBEAT.stat().st_mtime) <= stale_s:
+                return True, "heartbeat file fresh"
+
+    if CYCLE_RESULT.exists() and CYCLE_RESULT.stat().st_mtime >= started - 1:
+        return True, "agent_cycle_result present"
+
+    newest = 0.0
+    for p in (ROOT / "tools").glob("*.py"):
+        newest = max(newest, p.stat().st_mtime)
+    for p in (ROOT / "submissions").glob("director-agentic-*/**/*"):
+        try:
+            newest = max(newest, p.stat().st_mtime)
+        except OSError:
+            pass
+    if newest >= started - 1 and (now - newest) <= stale_s:
+        return True, f"workspace mtime age={now - newest:.0f}s"
+
+    return False, "no fresh heartbeat/result/tool activity"
+
+
+def build_brief(st: dict, budget: dict) -> str:
     ensure_learnings()
     best = st.get("best") or {}
     learnings = LEARNINGS.read_text(encoding="utf-8")[:4000]
@@ -172,13 +417,16 @@ def build_brief(st: dict, timeout_s: float) -> str:
         if crash
         else ""
     )
+    postmortem = opportunistic_crash_brief(st, budget)
+    timeout_s = float(budget["timeout_s"])
     return f"""You are the local Agentic Research Director for the Autolab hill
 matrix-multiplication-tensor-3x3 in this repo (cwd is the project root).
 
 {STERILE_FACTS}
-{crash_block}
+{crash_block}{postmortem}
 Current bests: additions={best.get('additions')} support={best.get('support')} rank={best.get('rank')}
-Cycle budget: finish within ~{int(timeout_s)}s wall clock. Prefer one bounded experiment.
+Wall-clock budget this cycle: ~{int(timeout_s)}s (soft checkpoint ~{int(budget['soft_at'])}s).
+{budget['note']}
 
 Learnings file (also on disk at tools/learnings.md):
 {learnings}
@@ -191,10 +439,13 @@ Recent tools/:
 
 MANDATE for this cycle:
 1. Propose ONE non-duplicate hypothesis that could beat adds<56 or support<152 or rank<23.
-2. You MAY write a new tool under tools/ and run a BOUNDDED search (small rounds first).
-3. Do NOT hills push / Autolab publish. Do NOT force-push. Do NOT touch secrets/.env.
-4. If you find Brent-ok improvement, write submission under submissions/director-agentic-*/ and note it.
-5. When done, MUST write logs/agent_cycle_result.json with exactly this schema:
+2. You MAY write a new tool under tools/ and run a BOUNDDED search (smoke first).
+3. While any tool runs >2 minutes, refresh logs/agent_heartbeat.json roughly every 2–3 minutes:
+   {{"ts": <unix_seconds>, "status": "short status", "eta_s": <seconds or null>, "cycle": {st.get('cycle', 0)}}}
+   Fresh heartbeats let the outer director GRANT GRACE instead of cancelling at the soft deadline.
+4. Do NOT hills push / Autolab publish. Do NOT force-push. Do NOT touch secrets/.env.
+5. If you find Brent-ok improvement, write submission under submissions/director-agentic-*/ and note it.
+6. When done, MUST write logs/agent_cycle_result.json with exactly this schema:
 {{
   "hypothesis": "...",
   "actions": ["..."],
@@ -206,6 +457,7 @@ MANDATE for this cycle:
   "sterile": true/false
 }}
 Then stop. Prefer inventing new structure over re-running retired registry seeds.
+Prefer finishing with a result over a heroic search that times out.
 """
 
 
@@ -376,13 +628,24 @@ def cancel_stuck_run(st: dict, api_key: str) -> None:
     save_state(st)
 
 
-def wait_run_with_timeout(run, timeout_s: float, CursorAgentError):
-    """Wait for run; cancel on timeout when supported."""
-    t0 = time.time()
-    # Prefer SDK wait with no built-in timeout — poll via wait in a thread? sync wait blocks.
-    # Use a simple approach: call wait() and rely on outer signal; for timeout use cancel.
+def wait_run_with_timeout(run, timeout_s: float, CursorAgentError, budget: dict | None = None, st: dict | None = None):
+    """Wait for run with soft deadline + progress-based grace before hard cancel."""
     import threading
 
+    budget = budget or {
+        "timeout_s": timeout_s,
+        "soft_at": timeout_s * 0.72,
+        "grace_s": min(900.0, timeout_s * 0.28),
+        "timeout_max": timeout_s,
+        "mode": "normal",
+    }
+    hard = float(budget["timeout_s"])
+    soft = float(budget["soft_at"])
+    grace_s = float(budget["grace_s"])
+    hard_cap = float(budget.get("timeout_max") or hard)
+    started = (st or {}).get("cycle_started_ts") or time.time()
+
+    t0 = time.time()
     box: dict = {"result": None, "error": None}
 
     def _wait():
@@ -393,10 +656,49 @@ def wait_run_with_timeout(run, timeout_s: float, CursorAgentError):
 
     th = threading.Thread(target=_wait, daemon=True)
     th.start()
-    th.join(timeout=timeout_s)
+
+    soft_logged = False
+    grace_used = False
+    poll = 15.0
+    while th.is_alive():
+        if STOP:
+            break
+        elapsed = time.time() - t0
+        # Soft checkpoint: only log; cannot follow-up while run is active
+        if elapsed >= soft and not soft_logged:
+            soft_logged = True
+            alive, why = agent_showing_progress(started)
+            log(f"SOFT deadline {elapsed:.0f}s/{hard:.0f}s mode={budget.get('mode')} progress={alive} ({why})")
+        # Hard deadline with optional one-shot grace if agent still working
+        if elapsed >= hard:
+            alive, why = agent_showing_progress(started, stale_s=240.0)
+            if alive and not grace_used and hard + grace_s <= hard_cap + 1:
+                grace_used = True
+                hard = min(hard_cap, hard + grace_s)
+                log(f"GRACE +{grace_s:.0f}s → hard={hard:.0f}s because {why}")
+            elif alive and not grace_used and hard < hard_cap:
+                grace_used = True
+                hard = hard_cap
+                log(f"GRACE to timeout_max={hard:.0f}s because {why}")
+            else:
+                log(
+                    f"TIMEOUT after {elapsed:.0f}s (mode={budget.get('mode')} "
+                    f"progress={alive} {why}) — cancelling run"
+                )
+                try:
+                    if hasattr(run, "supports") and run.supports("cancel"):
+                        run.cancel()
+                    elif hasattr(run, "cancel"):
+                        run.cancel()
+                except Exception as e:
+                    log(f"cancel failed: {e}")
+                th.join(timeout=30)
+                return None, elapsed, True, "timed_out"
+        th.join(timeout=poll)
+
     elapsed = time.time() - t0
     if th.is_alive():
-        log(f"TIMEOUT after {elapsed:.0f}s — cancelling run")
+        log(f"TIMEOUT after {elapsed:.0f}s (interrupt) — cancelling run")
         try:
             if hasattr(run, "supports") and run.supports("cancel"):
                 run.cancel()
@@ -407,12 +709,17 @@ def wait_run_with_timeout(run, timeout_s: float, CursorAgentError):
         th.join(timeout=30)
         return None, elapsed, True, "timed_out"
     if box["error"] is not None:
-        err = box["error"]
-        return None, elapsed, False, str(err)
+        return None, elapsed, False, str(box["error"])
     return box["result"], elapsed, False, None
 
 
-def recover_on_startup(st: dict, api_key: str, model: str, timeout_s: float) -> dict:
+def recover_on_startup(
+    st: dict,
+    api_key: str,
+    model: str,
+    base_timeout: float,
+    timeout_max: float,
+) -> dict:
     """Handle mid-cycle crash / unfinished result before starting new cycles."""
     phase = st.get("phase") or "idle"
     result = read_cycle_result()
@@ -436,6 +743,7 @@ def recover_on_startup(st: dict, api_key: str, model: str, timeout_s: float) -> 
         st["phase"] = "idle"
         st["run_id"] = None
         st["crashed_hint"] = None
+        st["consecutive_timeouts"] = 0
         save_state(st)
         return st
 
@@ -444,6 +752,8 @@ def recover_on_startup(st: dict, api_key: str, model: str, timeout_s: float) -> 
         Agent, LocalAgentOptions, CursorAgentError = _import_sdk()
         from cursor_sdk import AgentOptions  # type: ignore
 
+        budget = choose_cycle_budget(base_timeout, timeout_max, st)
+        st["budget_mode"] = budget["mode"]
         try:
             agent = Agent.resume(
                 st["agent_id"],
@@ -457,10 +767,19 @@ def recover_on_startup(st: dict, api_key: str, model: str, timeout_s: float) -> 
             if run_id:
                 try:
                     run = Agent.get_run(run_id, {"api_key": api_key})
-                    log(f"recovery: reattached run_id={run_id}; waiting remaining timeout")
+                    log(
+                        f"recovery: reattached run_id={run_id}; "
+                        f"budget_mode={budget['mode']} timeout={budget['timeout_s']:.0f}s"
+                    )
                     st["phase"] = "awaiting_result"
                     save_state(st)
-                    res, elapsed, timed_out, err = wait_run_with_timeout(run, timeout_s, CursorAgentError)
+                    res, elapsed, timed_out, err = wait_run_with_timeout(
+                        run,
+                        budget["timeout_s"],
+                        CursorAgentError,
+                        budget=budget,
+                        st=st,
+                    )
                     # Detached / already-done runs often error immediately
                     if err and "detach" in err.lower():
                         log(f"recovery: detached run — cancelling: {err}")
@@ -529,6 +848,17 @@ def _finish_after_wait(st, agent, res, elapsed, timed_out, err) -> dict:
     save_state(st)
     status = getattr(res, "status", None) if res is not None else None
     if timed_out:
+        hb = read_heartbeat()
+        partial = read_cycle_result()
+        tip_bits = []
+        if hb and hb.get("status"):
+            tip_bits.append(f"heartbeat={hb.get('status')} eta_s={hb.get('eta_s')}")
+        if partial and partial.get("hypothesis"):
+            tip_bits.append(f"partial_hyp={(partial.get('hypothesis') or '')[:120]}")
+        tools_touch = recent_tool_files(3)
+        if tools_touch:
+            tip_bits.append(f"recent_tools={','.join(tools_touch)}")
+        detail = "; ".join(tip_bits) if tip_bits else "no heartbeat/partial result"
         append_ledger(
             {
                 "cycle": st.get("cycle"),
@@ -540,9 +870,20 @@ def _finish_after_wait(st, agent, res, elapsed, timed_out, err) -> dict:
                 "agent_id": st.get("agent_id"),
                 "run_id": st.get("run_id"),
                 "missing": "timed_out",
+                "budget_mode": st.get("budget_mode"),
+                "postmortem": detail,
+                "hypothesis": (partial or {}).get("hypothesis") if partial else None,
             }
         )
-        st["crashed_hint"] = f"timeout cycle={st.get('cycle')} run_id={st.get('run_id')}"
+        st["crashed_hint"] = (
+            f"timeout cycle={st.get('cycle')} run_id={st.get('run_id')} | {detail}"
+        )
+        st["consecutive_timeouts"] = int(st.get("consecutive_timeouts") or 0) + 1
+        # Opportunistic learning only on timeout (next brief may reuse via post-mortem)
+        append_learning(
+            f"TIMEOUT cycle={st.get('cycle')} mode={st.get('budget_mode')} {detail} "
+            "→ next: smoke-bound + early agent_cycle_result.json"
+        )
         st["phase"] = "idle"
         st["run_id"] = None
         save_state(st)
@@ -581,6 +922,7 @@ def _finish_after_wait(st, agent, res, elapsed, timed_out, err) -> dict:
             f"rank={st['best'].get('rank')} | last={event.get('label')} | hyp={event.get('hypothesis')}"
         )
         st["crashed_hint"] = None
+        st["consecutive_timeouts"] = 0
     else:
         append_ledger(
             {
@@ -603,20 +945,37 @@ def _finish_after_wait(st, agent, res, elapsed, timed_out, err) -> dict:
     return st
 
 
-def run_one_cycle(st: dict, api_key: str, model: str, timeout_s: float) -> bool:
+def run_one_cycle(
+    st: dict,
+    api_key: str,
+    model: str,
+    base_timeout: float,
+    timeout_max: float,
+) -> bool:
     Agent, LocalAgentOptions, CursorAgentError = _import_sdk()
+    budget = choose_cycle_budget(base_timeout, timeout_max, st)
     st["cycle"] = int(st.get("cycle") or 0) + 1
     st["cycle_started_ts"] = time.time()
     st["phase"] = "prompting"
+    st["budget_mode"] = budget["mode"]
     if CYCLE_RESULT.exists():
-        # avoid mistaking old result for this cycle
         CYCLE_RESULT.unlink()
+    if HEARTBEAT.exists():
+        try:
+            HEARTBEAT.unlink()
+        except OSError:
+            pass
     save_state(st)
 
-    brief = build_brief(st, timeout_s)
+    brief = build_brief(st, budget)
     agent = open_agent(st, api_key, model)
     try:
-        log(f"RUN cycle={st['cycle']} agent_id={st.get('agent_id')} timeout={timeout_s}s")
+        log(
+            f"RUN cycle={st['cycle']} agent_id={st.get('agent_id')} "
+            f"budget_mode={budget['mode']} timeout={budget['timeout_s']:.0f}s "
+            f"soft={budget['soft_at']:.0f}s grace={budget['grace_s']:.0f}s "
+            f"consec_to={budget['consecutive_timeouts']}"
+        )
         run = agent.send(brief)
         run_id = getattr(run, "id", None) or getattr(run, "run_id", None)
         st["run_id"] = run_id
@@ -624,9 +983,13 @@ def run_one_cycle(st: dict, api_key: str, model: str, timeout_s: float) -> bool:
         save_state(st)
         log(f"run_id={run_id}")
 
-        # Do NOT iterate run.messages() before wait — it blocks until the run
-        # finishes and defeats the wall-clock timeout. Wait with timeout only.
-        res, elapsed, timed_out, err = wait_run_with_timeout(run, timeout_s, CursorAgentError)
+        res, elapsed, timed_out, err = wait_run_with_timeout(
+            run,
+            budget["timeout_s"],
+            CursorAgentError,
+            budget=budget,
+            st=st,
+        )
         _finish_after_wait(st, agent, res, elapsed, timed_out, err)
     except CursorAgentError as e:
         msg = str(getattr(e, "message", e))
@@ -681,7 +1044,18 @@ def smoke_pong(api_key: str, model: str) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Local Cursor Agent SDK research director")
     ap.add_argument("--max-cycles", type=int, default=20)
-    ap.add_argument("--timeout", type=float, default=2400.0, help="Per-cycle seconds")
+    ap.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help="Base per-cycle wall seconds (adaptive modes may shorten/extend)",
+    )
+    ap.add_argument(
+        "--timeout-max",
+        type=float,
+        default=DEFAULT_TIMEOUT_MAX,
+        help="Hard cap for extend/grace (seconds)",
+    )
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--smoke", action="store_true", help="Agent.prompt pong then exit")
     ap.add_argument("--model", default=DEFAULT_MODEL)
@@ -705,16 +1079,17 @@ def main() -> int:
         st["best"] = {"additions": 56, "support": 152, "rank": 23}
 
     log(
-        f"agentic director start max_cycles={args.max_cycles} timeout={args.timeout}s "
+        f"agentic director start max_cycles={args.max_cycles} "
+        f"timeout={args.timeout}s timeout_max={args.timeout_max}s "
         f"model={args.model} phase={st.get('phase')} agent_id={st.get('agent_id')}"
     )
 
     if not args.no_recover:
-        st = recover_on_startup(st, api_key, args.model, args.timeout)
+        st = recover_on_startup(st, api_key, args.model, args.timeout, args.timeout_max)
 
     cycles = 0
     while cycles < args.max_cycles and not STOP:
-        ok = run_one_cycle(st, api_key, args.model, args.timeout)
+        ok = run_one_cycle(st, api_key, args.model, args.timeout, args.timeout_max)
         cycles += 1
         st = load_state()
         if args.once or not ok:

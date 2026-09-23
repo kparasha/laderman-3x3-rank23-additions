@@ -60,3 +60,9 @@ Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 - 2026-09-22 21:44 cycle=49 label=sterile arch=additions metric=56 hyp=Sun56 + two Stapleton UV product grafts + re-solved W stays Brent rank-23 and multi-seed CSE can certify total <56 (beyo
 
 - 2026-09-22 21:47 cycle=50 label=sterile arch=additions metric=56 hyp=Cross-scheme whole-matrix pairs (Sun/Stapleton/Perminov U×V) + solved W yield Brent rank-23 factorizations with multi-se
+
+- 2026-09-22 22:04 crash-brief to=1|active=0|detach=0|mid=0|mode=wrap: Timeout post-mortem; Do NOT relaunch the same open-ended search that timed out. Nearby prior hyp (context only)
+
+- 2026-09-22 22:04 crash-brief to=1|active=0|detach=0|mid=1|mode=wrap: Timeout post-mortem; Do NOT relaunch the same open-ended search that timed out. Nearby prior hyp (context only); Lifecycle post-mortem
+
+- 2026-09-22 22:06 crash-brief to=0|active=0|detach=1|mid=1|mode=wrap: Timeout post-mortem; Do NOT relaunch the same open-ended search that timed out. Nearby prior hyp (context only); Lifecycle post-mortem

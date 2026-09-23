@@ -41,7 +41,9 @@ fi
 
 echo "Starting Unattended Local Agentic Search (caffeinate -i -s)"
 # -i idle sleep; -s system sleep on AC power
-nohup caffeinate -i -s "$PY" -u tools/agentic_director.py --max-cycles 20 --timeout 2400 \
+# Base 3600s + adaptive budget (tight/wrap/extend) up to --timeout-max 5400s
+nohup caffeinate -i -s "$PY" -u tools/agentic_director.py \
+  --max-cycles 20 --timeout 3600 --timeout-max 5400 \
   >> logs/director-overnight.stdout 2>&1 &
 echo $! > logs/checkpoints/director.pid
 echo "pid $(cat logs/checkpoints/director.pid) — keep Mac on AC"
