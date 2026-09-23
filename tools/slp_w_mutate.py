@@ -345,6 +345,7 @@ def try_add_inter_shorten_two(side, gold, rng):
     # For each final, see if we can rewrite shorter using new vector
     improved = 0
     new_finals = []
+    dim = len(gold[0])
     for fi, f in enumerate(trial["final"]):
         target = gold[fi]
         old_len = len(f)
@@ -362,7 +363,7 @@ def try_add_inter_shorten_two(side, gold, rng):
                     continue
                 for sa in (1, -1):
                     for sb in (1, -1):
-                        g = tuple(sa * vnew[k] + sb * vs2[i][k] for k in range(23))
+                        g = tuple(sa * vnew[k] + sb * vs2[i][k] for k in range(dim))
                         if g == target:
                             found = [(new_idx, sa), (i, sb)]
                             break

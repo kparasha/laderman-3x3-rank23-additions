@@ -1,0 +1,44 @@
+# Research learnings (agentic director)
+
+Hard facts (do not re-run these neighborhoods with the same seeds/moves):
+
+- Sun W nullspace dim=0 given U,V — cannot vary W alone for additions.
+- Signflip + greedy W CSE always lands >=57 (improvements=0 overnight).
+- UV-affine mutate+solve W: no mass at cost<=56 (scored tens of thousands).
+- Stapleton 2/3-edit: accept_rate~8.5% but improved=0 over ~2M edits (plateau at 152).
+- Scheme CSE Stapleton/Perminov/Laderman bottoms ~64–66 with le56=0.
+- Multi-seed support stuck at 152; flipgraph/rank-drop found no exact rank<23.
+
+Priority: additions (certified SLP <56 @ rank 23) → support <152 → rank <23.
+
+Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
+
+## Updates
+
+(appended by agentic_director after each cycle)
+
+- 2026-09-22 17:40 cycle=100 label=sterile arch=additions metric=56 hyp=unit-test
+- 2026-09-22 19:52 cycle=agentic label=sterile arch=support metric=152 hyp=pair-zero-orbit (26 seeds; W beam: Sun W has 0 CSE neighbors)
+- 2026-09-22 20:00 cycle=agentic label=sterile arch=additions metric=56 hyp=add_inter beam (0 neighbors incl add_inter/drop; W graph dead at Sun)
+- 2026-09-22 20:03 cycle=agentic label=sterile arch=rank metric=23 hyp=Q-redundancy probe Sun+Stapleton (0/23 removable); cross-graft Brent=0; zero+flip brent_hits=0
+- 2026-09-22 20:16 cycle=agentic label=sterile arch=additions metric=56 hyp=product-perm CSE (10k perms all total=66 le56=0; greedy rebuild ≠ Sun56 sides)
+- 2026-09-22 20:20 cycle=agentic label=sterile arch=additions metric=56 hyp=Laderman sides hill 120k (65→65 imp=0; UV graph connected but local min)
+- 2026-09-22 20:23 cycle=agentic label=sterile arch=additions metric=56 hyp=Laderman sides SA 90k (flat plateau; uphill=0); UV mutate probe best=65
+- 2026-09-22 20:32 cycle=agentic label=sterile arch=additions metric=56 hyp=Stapleton sides hill (64→63 imp=1 then flat; global baseline still 56)
+- 2026-09-22 20:36 cycle=agentic label=sterile arch=support metric=152 hyp=exhaustive k-zero on fixed coords (k=4/5 brent_ok=0); Stapleton sides@63 strict local min
+
+- 2026-09-22 20:00 cycle=36 label=sterile arch=support metric=152 hyp=Stapleton support 152 is not a single-zero local minimum: clearing two nonzero entries simultaneously (on full discrete 
+
+- 2026-09-22 20:01 cycle=37 label=sterile arch=additions metric=56 hyp=Sun W=30 is not tight only under extract/shorten: add_inter and drop_inter moves enable a short beam path to W≤29 (total
+
+- 2026-09-22 20:03 cycle=38 label=sterile arch=rank metric=23 hyp=Sun56 or Stapleton60 has a rank-1 term that is a Q-linear combination of the other 22 (729-d flattening); dropping it yi
+
+- 2026-09-22 20:16 cycle=39 label=sterile arch=additions metric=56 hyp=Reordering the 23 rank-1 products (same Sun56 tensor) changes greedy multi-seed CSE on U,V,W and may yield certified SLP
+
+- 2026-09-22 20:20 cycle=40 label=sterile arch=additions metric=56 hyp=Laderman scheme greedy-CSE sides (total=65, UV mutate graph connected) can gold-preserving hill-climb on U/V/W schedules
+
+- 2026-09-22 20:24 cycle=41 label=sterile arch=additions metric=56 hyp=Laderman sides at total=65 sit in a flat plateau of equal-cost mutate neighbors; simulated annealing (uphill accepts) ca
+
+- 2026-09-22 20:32 cycle=42 label=sterile arch=additions metric=56 hyp=Stapleton greedy-CSE sides (total=64, support=152) have strict downhill gold-preserving mutate edges (unlike flat Laderm
+
+- 2026-09-22 20:36 cycle=43 label=sterile arch=support metric=152 hyp=Stapleton support 152: some 4- or 5-entry simultaneous zero on a small fixed coordinate block satisfies Brent and enable

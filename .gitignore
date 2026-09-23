@@ -3,3 +3,7 @@
 **/.pytest_cache/
 lean/.lake/
 *.olean
+.venv/
+.uv-python/
+.env
+logs/checkpoints/director.pid

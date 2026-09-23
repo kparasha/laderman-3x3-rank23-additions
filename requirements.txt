@@ -1,0 +1,3 @@
+# Python deps for the local Agentic Director (Cursor SDK).
+# Requires Python >=3.10. Prefer: uv venv .venv --python 3.12 && uv pip install -r requirements.txt
+cursor-sdk>=1.0.32
