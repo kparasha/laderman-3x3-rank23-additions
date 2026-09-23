@@ -26,6 +26,12 @@ Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 - 2026-09-22 20:23 cycle=agentic label=sterile arch=additions metric=56 hyp=Laderman sides SA 90k (flat plateau; uphill=0); UV mutate probe best=65
 - 2026-09-22 20:32 cycle=agentic label=sterile arch=additions metric=56 hyp=Stapleton sides hill (64→63 imp=1 then flat; global baseline still 56)
 - 2026-09-22 20:36 cycle=agentic label=sterile arch=support metric=152 hyp=exhaustive k-zero on fixed coords (k=4/5 brent_ok=0); Stapleton sides@63 strict local min
+- 2026-09-22 21:19 cycle=agentic label=sterile arch=additions metric=56 hyp=dual U+V side mutate (Stap 3413 neutral; Sun 0 dual-feasible); product signflip breaks Brent
+- 2026-09-22 21:26 cycle=agentic label=sterile arch=additions metric=56 hyp=Sun CSE start hill (66→62 plateau; SA@62 flat; same gold as Sun56)
+- 2026-09-22 21:40 cycle=agentic label=sterile arch=additions metric=56 hyp=BFS/SA @62→SIDES0@56 same gold (two flat minima; deltas only 0 from 62)
+- 2026-09-22 21:42 cycle=agentic label=sterile arch=support metric=152 hyp=1-cell ternary reassign (304 tries brent_ok=0); rank pair-drop 253 pairs no rank-21
+- 2026-09-22 21:44 cycle=agentic label=sterile arch=additions metric=56 hyp=2-product UV graft (253 pairs brent=0); CSE@62 add_inter n=0 beam visited=4; support 2-cell 120k brent_hits=24 still 152
+- 2026-09-22 21:47 cycle=agentic label=sterile arch=additions metric=56 hyp=whole UV hybrid 9 schemes (cross solve/brent fail; best CSE=66); 3-cell chain+triple rank-drop side sterile
 
 - 2026-09-22 20:00 cycle=36 label=sterile arch=support metric=152 hyp=Stapleton support 152 is not a single-zero local minimum: clearing two nonzero entries simultaneously (on full discrete 
 
@@ -42,3 +48,15 @@ Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 - 2026-09-22 20:32 cycle=42 label=sterile arch=additions metric=56 hyp=Stapleton greedy-CSE sides (total=64, support=152) have strict downhill gold-preserving mutate edges (unlike flat Laderm
 
 - 2026-09-22 20:36 cycle=43 label=sterile arch=support metric=152 hyp=Stapleton support 152: some 4- or 5-entry simultaneous zero on a small fixed coordinate block satisfies Brent and enable
+
+- 2026-09-22 21:19 cycle=45 label=sterile arch=additions metric=56 hyp=Applying coordinated U+V gold-preserving mutates in one step (not alternating single-side hill) can reach certified tota
+
+- 2026-09-22 21:26 cycle=46 label=sterile arch=additions metric=56 hyp=On Sun's fixed (U,V,W) matrices, greedy CSE schedules (~66) share the same expanded gold as SIDES0@56 but sit in a diffe
+
+- 2026-09-22 21:41 cycle=47 label=sterile arch=additions metric=56 hyp=Sun certificate @62 and literature SIDES0@56 share identical expanded gold; bounded BFS or hot SA from @62 connects to t
+
+- 2026-09-22 21:42 cycle=48 label=sterile arch=support metric=152 hyp=Stapleton support 152: changing one nonzero cell to any other ternary value (−1/0/1) can preserve Brent and enable suppo
+
+- 2026-09-22 21:44 cycle=49 label=sterile arch=additions metric=56 hyp=Sun56 + two Stapleton UV product grafts + re-solved W stays Brent rank-23 and multi-seed CSE can certify total <56 (beyo
+
+- 2026-09-22 21:47 cycle=50 label=sterile arch=additions metric=56 hyp=Cross-scheme whole-matrix pairs (Sun/Stapleton/Perminov U×V) + solved W yield Brent rank-23 factorizations with multi-se
