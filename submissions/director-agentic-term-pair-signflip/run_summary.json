@@ -1,0 +1,9 @@
+{
+  "baseline_src": "submissions/sun56/solution.json",
+  "trials": 5000,
+  "best_total": 60,
+  "le56": 0,
+  "brent_fail": 0,
+  "improved": false,
+  "elapsed_s": 31.807131052017212
+}

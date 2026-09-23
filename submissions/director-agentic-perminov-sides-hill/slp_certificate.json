@@ -1,0 +1,14 @@
+{
+  "note": "start",
+  "improved": false,
+  "baseline_total": 66,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 175,
+  "breakdown": {
+    "U": 16,
+    "V": 15,
+    "W": 35
+  },
+  "certified_cost": 66
+}

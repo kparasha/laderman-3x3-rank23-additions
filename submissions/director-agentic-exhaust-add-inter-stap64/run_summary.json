@@ -1,0 +1,24 @@
+{
+  "start_total": 64,
+  "best_total": 63,
+  "tried": 2890,
+  "hits": 2,
+  "improved": false,
+  "elapsed_s": 3.4869370460510254,
+  "hit_list": [
+    {
+      "side": "U",
+      "a": 1,
+      "b": 2,
+      "sign": 1,
+      "total": 63
+    },
+    {
+      "side": "U",
+      "a": 2,
+      "b": 1,
+      "sign": 1,
+      "total": 63
+    }
+  ]
+}

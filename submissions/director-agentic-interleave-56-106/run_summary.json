@@ -1,0 +1,8 @@
+{
+  "start_cost": 56,
+  "walks": 50,
+  "steps_per_walk": 90,
+  "best_cost": 56,
+  "beats56": false,
+  "elapsed_s": 37.76159381866455
+}

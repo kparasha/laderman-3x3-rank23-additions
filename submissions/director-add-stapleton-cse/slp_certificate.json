@@ -1,0 +1,30 @@
+{
+  "src": "submissions/stapleton60/solution.json",
+  "greedy_baseline": 71,
+  "certified_cost": 64,
+  "breakdown": {
+    "U": 17,
+    "V": 16,
+    "W": 31
+  },
+  "improved": false,
+  "beat_baseline": true,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 152,
+  "improvements": 6,
+  "hist": {
+    "64": 3,
+    "65": 34,
+    "66": 94,
+    "67": 228,
+    "68": 452,
+    "69": 720,
+    "70": 886,
+    "71": 827,
+    "72": 492,
+    "73": 217,
+    "74": 44,
+    "75": 4
+  }
+}

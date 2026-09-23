@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Unattended local Agentic Director — thin wrapper around LaunchAgents.
+# Unattended director — LaunchAgent wrapper.
 #
-# Why LaunchAgents: nohup from a Cursor agent shell gets killed when that
-# shell session ends (that was the -102 / "director stopped" bug).
+# Default: Python agentic director (no Cursor SDK).
+#   bash tools/resume_overnight.sh
+#   bash tools/resume_overnight.sh --python
+#   bash tools/resume_overnight.sh --sdk          # Cursor SDK (needs CURSOR_API_KEY)
+#   bash tools/resume_overnight.sh --caffeinate   # attach wake-lock (~2–3pm on AC)
+#   bash tools/resume_overnight.sh --detach-caffeine
 #
-# Typical day:
-#   ~2–3pm (on AC):  bash tools/resume_overnight.sh --caffeinate
-#   ~7am / off AC:   bash tools/resume_overnight.sh --detach-caffeine
-#
-# Status dashboard: http://127.0.0.1:8765/
+# Status: http://127.0.0.1:8765/
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -16,22 +16,17 @@ LA="$ROOT/tools/launch_agents.sh"
 chmod +x "$LA" 2>/dev/null || true
 
 case "${1:-}" in
-  --no-caffeinate|--without-caffeine|"")
-    # Default morning-safe if no flag: keep climb alive without wake-lock
-    if [[ "${1:-}" == "" ]]; then
-      # preserve old default of wanting caffeine when no args — afternoon habit
-      exec bash "$LA" install-caffeine
-    fi
-    exec bash "$LA" install-morning
+  ""|--python|--no-caffeinate|--without-caffeine)
+    exec bash "$LA" install-python
     ;;
-  --caffeinate)
+  --sdk|--cursor-sdk)
+    exec bash "$LA" install-sdk
+    ;;
+  --caffeinate|--attach-caffeine)
     exec bash "$LA" install-caffeine
     ;;
   --detach-caffeine|--drop-caffeine)
     exec bash "$LA" drop-caffeine
-    ;;
-  --attach-caffeine)
-    exec bash "$LA" install-caffeine
     ;;
   --status)
     exec bash "$LA" status

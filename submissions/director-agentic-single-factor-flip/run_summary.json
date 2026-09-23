@@ -1,0 +1,13 @@
+{
+  "schemes": [
+    "submissions/sun56/solution.json",
+    "submissions/stapleton60/solution.json"
+  ],
+  "best_rank": 23,
+  "improved": false,
+  "elapsed_s": 0.06332111358642578,
+  "details": {
+    "submissions/sun56/solution.json": 0,
+    "submissions/stapleton60/solution.json": 0
+  }
+}

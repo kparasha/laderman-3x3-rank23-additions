@@ -1,0 +1,9 @@
+{
+  "steps": 5000,
+  "brent0_visits": 2697,
+  "best_rank": 27,
+  "best_support_if_rank23": null,
+  "improved_rank": false,
+  "improved_support": false,
+  "elapsed_s": 6.1063642501831055
+}

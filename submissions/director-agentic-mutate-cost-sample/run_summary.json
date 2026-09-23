@@ -1,0 +1,15 @@
+{
+  "samples": 2000,
+  "results": {
+    "at56": {
+      "start": 56,
+      "min_sampled": 56
+    },
+    "at62": {
+      "start": 62,
+      "min_sampled": 62
+    }
+  },
+  "beats56": false,
+  "elapsed_s": 4.538106918334961
+}

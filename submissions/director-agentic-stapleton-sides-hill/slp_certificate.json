@@ -1,0 +1,15 @@
+{
+  "note": "r=1096 U add_inter",
+  "improved": false,
+  "baseline_total": 64,
+  "round": 1096,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 152,
+  "breakdown": {
+    "U": 16,
+    "V": 16,
+    "W": 31
+  },
+  "certified_cost": 63
+}

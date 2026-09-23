@@ -1,0 +1,9 @@
+{
+  "start_support": 152,
+  "best_raw_support": 152,
+  "best_lift_support": 152,
+  "improved": false,
+  "brent_hits": 0,
+  "samples": 5000,
+  "elapsed_s": 2.2626519203186035
+}

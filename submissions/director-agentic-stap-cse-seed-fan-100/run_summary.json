@@ -1,0 +1,18 @@
+{
+  "src": "submissions/stapleton60/solution.json",
+  "seeds": 256,
+  "sides0_total": 56,
+  "best_total": 71,
+  "improved": false,
+  "hist_top5": [
+    [
+      71,
+      164
+    ],
+    [
+      72,
+      92
+    ]
+  ],
+  "elapsed_s": 0.22946381568908691
+}

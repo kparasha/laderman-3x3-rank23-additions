@@ -1,0 +1,12 @@
+{
+  "U": 13,
+  "V": 13,
+  "W": 30,
+  "total": 56,
+  "baseline": 56,
+  "improved": false,
+  "accepted": 0,
+  "improved_steps": 0,
+  "elapsed_s": 92.86952805519104,
+  "brent_ok": true
+}

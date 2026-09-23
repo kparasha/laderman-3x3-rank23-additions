@@ -1,0 +1,17 @@
+{
+  "schemes": {
+    "sun56": {
+      "rank": 23,
+      "drops_brent_ok": [],
+      "rank22_count": 0
+    },
+    "stapleton60": {
+      "rank": 23,
+      "drops_brent_ok": [],
+      "rank22_count": 0
+    }
+  },
+  "rank22_brent": [],
+  "improved": false,
+  "elapsed_s": 0.016848087310791016
+}

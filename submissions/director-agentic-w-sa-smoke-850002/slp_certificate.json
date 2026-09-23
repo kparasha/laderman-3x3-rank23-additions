@@ -1,0 +1,14 @@
+{
+  "note": "W SA start",
+  "improved": false,
+  "baseline_W": 30,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 175,
+  "breakdown": {
+    "U": 13,
+    "V": 13,
+    "W": 30
+  },
+  "certified_cost": 56
+}

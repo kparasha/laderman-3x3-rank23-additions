@@ -1,0 +1,12 @@
+{
+  "samples": 1500,
+  "at56": {
+    "start": 56,
+    "min_neighbor": 56
+  },
+  "at62": {
+    "start": 62,
+    "min_neighbor": 62
+  },
+  "elapsed_s": 3.0703179836273193
+}

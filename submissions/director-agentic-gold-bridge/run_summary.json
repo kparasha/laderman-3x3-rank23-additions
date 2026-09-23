@@ -1,0 +1,11 @@
+{
+  "cost56": 56,
+  "cost62": 62,
+  "keys_equal": false,
+  "from56_to62_relaxed": 0,
+  "from56_to62_mutate800": 0,
+  "from62_to56_relaxed": 0,
+  "from62_to56_mutate800": 0,
+  "bridge_exists": false,
+  "elapsed_s": 10.40921401977539
+}

@@ -1,0 +1,8 @@
+{
+  "base": "submissions/perminov58/solution.json",
+  "donor": "submissions/sun56/solution.json",
+  "brent_ok": 0,
+  "best_cse": null,
+  "improved": false,
+  "elapsed_s": 0.00761103630065918
+}

@@ -1,0 +1,25 @@
+{
+  "orbit_size": 26,
+  "scored": 12,
+  "best_cse_total": 66,
+  "best_tag": "id",
+  "improved": false,
+  "min3": [
+    {
+      "tag": "id",
+      "support": 175,
+      "cse_total": 66
+    },
+    {
+      "tag": "transpose",
+      "support": 175,
+      "cse_total": 66
+    },
+    {
+      "tag": "s3:[0, 2, 1]",
+      "support": 175,
+      "cse_total": 66
+    }
+  ],
+  "elapsed_s": 0.17874693870544434
+}

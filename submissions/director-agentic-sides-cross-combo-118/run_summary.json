@@ -1,0 +1,50 @@
+{
+  "combos": 8,
+  "gold_valid": 1,
+  "best_total": 56,
+  "best_key": "SSS",
+  "rows": [
+    {
+      "key": "SSS",
+      "gold_ok": true,
+      "total": 56
+    },
+    {
+      "key": "SST",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "STS",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "STT",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "TSS",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "TST",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "TTS",
+      "gold_ok": false,
+      "total": null
+    },
+    {
+      "key": "TTT",
+      "gold_ok": false,
+      "total": null
+    }
+  ],
+  "improved": false,
+  "elapsed_s": 0.0005550384521484375
+}

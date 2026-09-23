@@ -1,0 +1,9 @@
+{
+  "start_cost": 56,
+  "hist": {
+    "56": 30
+  },
+  "min_neighbor": 56,
+  "below_start": 0,
+  "elapsed_s": 4.508120059967041
+}

@@ -1,0 +1,10 @@
+{
+  "steps": 100,
+  "batch": 36,
+  "start_rank": 23,
+  "final_rank": 23,
+  "best_rank": 23,
+  "improvements": 0,
+  "improved": false,
+  "elapsed_s": 3.877413034439087
+}

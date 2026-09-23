@@ -1,0 +1,10 @@
+{
+  "start_total": 65,
+  "best_total": 65,
+  "improved": false,
+  "improvements": 0,
+  "uphill_accepts": 0,
+  "accepted": 10557,
+  "steps": 90000,
+  "elapsed_s": 136.91223883628845
+}

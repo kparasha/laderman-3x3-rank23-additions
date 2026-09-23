@@ -35,6 +35,12 @@ def main():
     ap.add_argument("--max-k", type=int, default=3)
     ap.add_argument("--rebuild-seeds", type=int, default=12)
     ap.add_argument("--seed-base", type=int, default=430000)
+    ap.add_argument(
+        "--baseline",
+        type=int,
+        default=None,
+        help="Certified total to beat (default: 56 for sun56 src else 63)",
+    )
     ap.add_argument("--out", type=Path, default=Path("submissions/director-agentic-signflip-rebuild"))
     ap.add_argument("--log", type=Path, default=Path("logs/signflip-rebuild-director.log"))
     args = ap.parse_args()
@@ -43,6 +49,9 @@ def main():
     args.log.parent.mkdir(parents=True, exist_ok=True)
     data = json.loads(args.src.read_text(encoding="utf-8"))
     u, v, w = data["u"], data["v"], data["w"]
+    baseline = args.baseline
+    if baseline is None:
+        baseline = 56 if "sun56" in str(args.src) else 63
 
     def log(msg):
         line = f"{time.strftime('%Y-%m-%dT%H:%M:%S')} {msg}"
@@ -53,14 +62,15 @@ def main():
     subsets = []
     for k in range(1, args.max_k + 1):
         subsets.extend(combinations(range(23), k))
-    log(f"start subsets={len(subsets)} rebuild_seeds={args.rebuild_seeds} baseline=56")
+    log(f"start subsets={len(subsets)} rebuild_seeds={args.rebuild_seeds} baseline={baseline}")
 
     t0 = time.time()
-    best_total = 56
+    best_total = baseline
     best_meta = None
     best_sides = None
     best_uvw = None
     tried = 0
+    brent_ok_subsets = 0
 
     for subset in subsets:
         signs = [1] * 23
@@ -69,6 +79,7 @@ def main():
         u2, v2, w2 = sign_flip_scheme(u, v, w, signs)
         if not brent_ok(u2, v2, w2):
             continue
+        brent_ok_subsets += 1
         for s in range(args.rebuild_seeds):
             tried += 1
             sides = rebuild_sides_from_uvw(u2, v2, w2, seed=args.seed_base + s + len(subset) * 97)
@@ -83,7 +94,7 @@ def main():
                 log(f"IMPROVED total={tot} subset={subset} seed={s}")
 
     elapsed = time.time() - t0
-    improved = best_total < 56
+    improved = best_total < baseline
     if improved and best_sides and best_uvw:
         u2, v2, w2 = best_uvw
         write_out(
@@ -96,7 +107,9 @@ def main():
         )
 
     summary = {
+        "baseline": baseline,
         "subsets": len(subsets),
+        "brent_ok_subsets": brent_ok_subsets,
         "rebuild_trials": tried,
         "best_total": best_total,
         "improved": improved,

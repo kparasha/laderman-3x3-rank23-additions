@@ -1,0 +1,12 @@
+{
+  "start_total": 62,
+  "best_total": 62,
+  "hit_SIDES0": false,
+  "improved": false,
+  "expanded": 3,
+  "visited": 3,
+  "cost_hist": {
+    "62": 3
+  },
+  "elapsed_s": 0.54128098487854
+}

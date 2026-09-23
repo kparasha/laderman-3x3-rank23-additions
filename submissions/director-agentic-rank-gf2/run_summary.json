@@ -1,0 +1,16 @@
+{
+  "schemes": {
+    "submissions/sun56/solution.json": {
+      "rank_gf2": 23,
+      "rank_gf3": 23,
+      "terms": 23
+    },
+    "submissions/stapleton60/solution.json": {
+      "rank_gf2": 23,
+      "rank_gf3": 23,
+      "terms": 23
+    }
+  },
+  "best_mod_rank": 23,
+  "improved": false
+}

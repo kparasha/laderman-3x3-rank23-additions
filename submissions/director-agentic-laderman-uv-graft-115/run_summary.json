@@ -1,0 +1,127 @@
+{
+  "summary": {
+    "trials": 23,
+    "brent_ok": 1,
+    "best_total": 66,
+    "best_term": 13,
+    "improved": false,
+    "elapsed_s": 0.35304903984069824
+  },
+  "rows": [
+    {
+      "t": 0,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 1,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 2,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 3,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 4,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 5,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 6,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 7,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 8,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 9,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 10,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 11,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 12,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 13,
+      "brent": true,
+      "cse_total": 66
+    },
+    {
+      "t": 14,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 15,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 16,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 17,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 18,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 19,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 20,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 21,
+      "brent": false,
+      "reason": "solve_fail"
+    },
+    {
+      "t": 22,
+      "brent": false,
+      "reason": "solve_fail"
+    }
+  ]
+}

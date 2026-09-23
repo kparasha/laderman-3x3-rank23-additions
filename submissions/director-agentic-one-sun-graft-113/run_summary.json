@@ -1,0 +1,10 @@
+{
+  "trials": 23,
+  "brent_ok": 0,
+  "example_keep": null,
+  "best_cse": null,
+  "best_support": null,
+  "improved_adds": false,
+  "improved_support": false,
+  "elapsed_s": 0.008172035217285156
+}

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Install/start director + dashboard as macOS LaunchAgents (survive Cursor/shell exit).
 # Usage:
-#   bash tools/launch_agents.sh install-morning   # director KeepAlive, no caffeinate
-#   bash tools/launch_agents.sh install-caffeine  # + caffeinate -w director
-#   bash tools/launch_agents.sh drop-caffeine     # unload wake-lock only
+#   bash tools/launch_agents.sh install-python     # default: Python agentic (no Cursor SDK)
+#   bash tools/launch_agents.sh install-sdk         # Cursor SDK agentic director
+#   bash tools/launch_agents.sh install-caffeine    # wake-lock on whichever director is running
+#   bash tools/launch_agents.sh drop-caffeine
 #   bash tools/launch_agents.sh status
 #   bash tools/launch_agents.sh stop
 set -euo pipefail
@@ -80,8 +81,8 @@ case "$cmd" in
     bootout "$CAFF_LABEL"
     bootout "$DIR_LABEL"
     bootout "$DASH_LABEL"
-    # also kill stragglers from old nohup starts
     pkill -f "tools/agentic_director.py" 2>/dev/null || true
+    pkill -f "tools/python_agentic_director.py" 2>/dev/null || true
     pkill -f "tools/director_dashboard.py" 2>/dev/null || true
     pkill -f "caffeinate -i -s -w" 2>/dev/null || true
     echo "stopped launch agents + stragglers"
@@ -92,8 +93,25 @@ case "$cmd" in
     echo "caffeinate wake-lock unloaded; director/dashboard KeepAlive unchanged"
     ;;
 
-  install-morning|no-caffeinate)
-    # Ensure API key presence (director loads .env itself)
+  install-python|install-morning|no-caffeinate|python)
+    # Default overnight: pure Python agentic (no CURSOR_API_KEY)
+    TMP="$(mktemp -d)"
+    write_plist "$DIR_LABEL" "$TMP/${DIR_LABEL}.plist" \
+      "$PY" "-u" "${ROOT}/tools/python_agentic_director.py" \
+      "--max-cycles" "500" "--timeout" "900"
+    write_plist "$DASH_LABEL" "$TMP/${DASH_LABEL}.plist" \
+      "$PY" "-u" "${ROOT}/tools/director_dashboard.py" \
+      "--host" "127.0.0.1" "--port" "8765"
+    bootstrap_one "$DIR_LABEL" "$TMP/${DIR_LABEL}.plist"
+    bootstrap_one "$DASH_LABEL" "$TMP/${DASH_LABEL}.plist"
+    bootout "$CAFF_LABEL"
+    rm -rf "$TMP"
+    sleep 2
+    echo "Python agentic director loaded (no Cursor SDK)"
+    echo "dashboard http://127.0.0.1:8765/"
+    ;;
+
+  install-sdk|sdk|install-sdk-morning)
     if ! "$PY" -c "
 from pathlib import Path
 import os
@@ -122,25 +140,24 @@ print('ok' if ok else 'missing')
     bootout "$CAFF_LABEL"
     rm -rf "$TMP"
     sleep 2
+    echo "Cursor SDK agentic director loaded"
     echo "dashboard http://127.0.0.1:8765/"
-    launchctl print "${DOMAIN}/${DIR_LABEL}" 2>/dev/null | head -n 20 || true
     ;;
 
   install-caffeine|caffeinate)
-    bash "$0" install-morning
-    # Wait for director pid
-    sleep 2
-    DPID="$(pgrep -f "tools/agentic_director.py" | head -n1 || true)"
+    # Attach wake-lock to whichever director is running
+    sleep 1
+    DPID="$(pgrep -f "tools/python_agentic_director.py" | head -n1 || true)"
     if [[ -z "${DPID:-}" ]]; then
-      echo "director not up yet; try again in a few seconds: bash tools/launch_agents.sh install-caffeine"
+      DPID="$(pgrep -f "tools/agentic_director.py" | head -n1 || true)"
+    fi
+    if [[ -z "${DPID:-}" ]]; then
+      echo "no director running — start with: bash tools/launch_agents.sh install-python"
       exit 1
     fi
     TMP="$(mktemp -d)"
     write_plist "$CAFF_LABEL" "$TMP/${CAFF_LABEL}.plist" \
       "/usr/bin/caffeinate" "-i" "-s" "-w" "$DPID"
-    # caffeinate -w exits when pid dies; KeepAlive will respawn but needs fresh pid —
-    # so for caffeine we use KeepAlive false and rely on re-attach. Override plist.
-    # Simpler: run caffeinate without KeepAlive (rewrite)
     python3 - <<PY
 from pathlib import Path
 p = Path("$TMP/${CAFF_LABEL}.plist")
@@ -150,7 +167,7 @@ p.write_text(t)
 PY
     bootstrap_one "$CAFF_LABEL" "$TMP/${CAFF_LABEL}.plist"
     rm -rf "$TMP"
-    echo "caffeinate attached to director pid $DPID (prefer AC). Drop with: bash tools/launch_agents.sh drop-caffeine"
+    echo "caffeinate attached to pid $DPID (prefer AC). Drop: bash tools/launch_agents.sh drop-caffeine"
     ;;
 
   status)
@@ -164,7 +181,7 @@ PY
       fi
     done
     echo "--- processes ---"
-    pgrep -fl "agentic_director|director_dashboard|caffeinate -i -s -w" || echo none
+    pgrep -fl "python_agentic_director|agentic_director|director_dashboard|caffeinate -i -s -w" || echo none
     echo "--- port 8765 ---"
     lsof -nP -iTCP:8765 -sTCP:LISTEN || echo "not listening"
     ;;

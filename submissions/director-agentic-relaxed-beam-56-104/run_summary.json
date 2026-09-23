@@ -1,0 +1,9 @@
+{
+  "start_cost": 56,
+  "visited": 700,
+  "depth_reached": 2,
+  "best_cost": 56,
+  "improved": false,
+  "beats56": false,
+  "elapsed_s": 169.41004395484924
+}

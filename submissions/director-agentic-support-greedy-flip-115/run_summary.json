@@ -1,0 +1,11 @@
+{
+  "steps": 180,
+  "batch": 36,
+  "start_support": 152,
+  "final_support": 152,
+  "best_support": 152,
+  "improvements": 0,
+  "plateau_steps": 180,
+  "improved": false,
+  "elapsed_s": 177.13888883590698
+}

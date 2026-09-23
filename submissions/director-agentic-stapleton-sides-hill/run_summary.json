@@ -1,0 +1,9 @@
+{
+  "start_total": 64,
+  "best_total": 63,
+  "improved": false,
+  "improvements": 1,
+  "accepted": 20504,
+  "rounds": 150000,
+  "elapsed_s": 218.62903380393982
+}

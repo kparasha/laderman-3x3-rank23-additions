@@ -1,0 +1,8 @@
+{
+  "trials": 1800,
+  "brent_ok": 0,
+  "best_raw_support": null,
+  "best_lift_support": null,
+  "improved": false,
+  "elapsed_s": 20.417841911315918
+}

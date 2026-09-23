@@ -1,0 +1,11 @@
+{
+  "steps": 90,
+  "batch": 24,
+  "start_support": 152,
+  "final_support": 152,
+  "best_support": 152,
+  "improvements": 0,
+  "brent_ok_in_batch": 239,
+  "improved": false,
+  "elapsed_s": 18.493674993515015
+}

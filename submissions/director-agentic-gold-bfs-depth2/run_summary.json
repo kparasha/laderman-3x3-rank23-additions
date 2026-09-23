@@ -1,0 +1,15 @@
+{
+  "cost56": 56,
+  "cost62": 62,
+  "62_to_56": {
+    "hit": false,
+    "depth": null,
+    "visited": 156
+  },
+  "56_to_62": {
+    "hit": false,
+    "depth": null,
+    "visited": 31
+  },
+  "elapsed_s": 18.1908540725708
+}

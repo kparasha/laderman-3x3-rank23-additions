@@ -1,0 +1,9 @@
+{
+  "steps": 3500,
+  "start_rank": 23,
+  "best_rank": 23,
+  "best_support_at_best_rank": 152,
+  "brent0_flips": 1154,
+  "improved": false,
+  "elapsed_s": 3.7660601139068604
+}

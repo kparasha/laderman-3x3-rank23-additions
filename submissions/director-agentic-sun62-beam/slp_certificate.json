@@ -1,0 +1,14 @@
+{
+  "note": "beam start",
+  "improved": false,
+  "baseline_total": 62,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 175,
+  "breakdown": {
+    "U": 16,
+    "V": 15,
+    "W": 31
+  },
+  "certified_cost": 62
+}

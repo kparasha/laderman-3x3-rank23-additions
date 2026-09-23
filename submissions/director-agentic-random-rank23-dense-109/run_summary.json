@@ -1,0 +1,13 @@
+{
+  "nnz_range": [
+    4,
+    8
+  ],
+  "trials": 850,
+  "brent_ok": 0,
+  "scored": 0,
+  "best_total": null,
+  "le56": 0,
+  "improved": false,
+  "elapsed_s": 22.593935012817383
+}

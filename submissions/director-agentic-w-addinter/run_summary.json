@@ -1,0 +1,10 @@
+{
+  "W": 30,
+  "total": 56,
+  "improved": false,
+  "start_neighbors": 0,
+  "expanded": 1,
+  "visited": 1,
+  "elapsed_s": 4.036969184875488,
+  "brent_ok": true
+}

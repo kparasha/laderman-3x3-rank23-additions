@@ -1,0 +1,13 @@
+{
+  "trials": 3,
+  "brent_ok": 3,
+  "scored": 2,
+  "best_total": 66,
+  "improved": false,
+  "best_meta": {
+    "u_scheme": "sun",
+    "v_scheme": "sun",
+    "nfree": 0
+  },
+  "elapsed_s": 0.31691789627075195
+}

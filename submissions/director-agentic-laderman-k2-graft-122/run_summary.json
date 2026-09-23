@@ -1,0 +1,10 @@
+{
+  "k": 2,
+  "samples": 550,
+  "brent_ok": 0,
+  "best_cse": null,
+  "best_support": null,
+  "improved_adds": false,
+  "improved_support": false,
+  "elapsed_s": 0.16643619537353516
+}

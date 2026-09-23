@@ -1,0 +1,12 @@
+{
+  "W": 30,
+  "total": 56,
+  "baseline_total": 56,
+  "improved": false,
+  "steps": 3200,
+  "accepted": 0,
+  "uphill_accepts": 0,
+  "improvements": 0,
+  "elapsed_s": 17.482080936431885,
+  "brent_ok": true
+}

@@ -1,0 +1,13 @@
+{
+  "cert_total56": 56,
+  "cert_total62": 62,
+  "same_ordered_uvw": true,
+  "same_multiset_uvw": true,
+  "rebuild_seeds": 16,
+  "best_total": 56,
+  "improved": false,
+  "best_meta": {
+    "source": "certificates"
+  },
+  "elapsed_s": 0.0005698204040527344
+}

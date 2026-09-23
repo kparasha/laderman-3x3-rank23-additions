@@ -1,0 +1,12 @@
+{
+  "start_total": 62,
+  "relaxed_cost_hist": {
+    "62": 56
+  },
+  "shells_at_plus1": 0,
+  "shells_hilled": 0,
+  "best_total": 62,
+  "improved": false,
+  "beats62": false,
+  "elapsed_s": 7.704302072525024
+}

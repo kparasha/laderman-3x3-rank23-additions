@@ -1,0 +1,9 @@
+{
+  "steps": 4500,
+  "plus_prob": 0.1,
+  "brent0_visits": 176,
+  "best_compact_rank": 27,
+  "min_at_brent0": 27,
+  "improved": false,
+  "elapsed_s": 5.806772947311401
+}

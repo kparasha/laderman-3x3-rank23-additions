@@ -1,0 +1,18 @@
+{
+  "src": "submissions/sun56/solution.json",
+  "seeds": 384,
+  "sides0_total": 56,
+  "best_total": 66,
+  "improved": false,
+  "hist_top5": [
+    [
+      66,
+      276
+    ],
+    [
+      67,
+      108
+    ]
+  ],
+  "elapsed_s": 0.37496519088745117
+}

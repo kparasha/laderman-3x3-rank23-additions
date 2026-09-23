@@ -262,6 +262,16 @@ Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 
 - 2026-09-23 16:09 cycle=121 label=sterile arch=additions metric=56 hyp=Depth-2 strict add_inter @ SIDES0@56 — level1_hits=0; Perm+1 Sun Brent=0; Stap CSE fan min=71; Stap plus support 152
 
+- 2026-09-23 16:18 cycle=122 label=sterile arch=additions metric=56 hyp=Laderman k=2→Sun graft 550 brent_ok=0; rebuild_sides_from_uvw smoke aborted (slow); support 1200 edits still 152
+
+- 2026-09-23 16:19 cycle=123 label=sterile arch=additions metric=56 hyp=Random Sun/Stap partition graft k=5..18 (450) brent_ok=0; Laderman flip support 153; @62 interleave best=62
+
+- 2026-09-23 16:20 cycle=124 label=sterile arch=support metric=152 hyp=Stap 1-cell UV perturb+solve W (1700) brent_ok=54 best_support=152; W-hill @62 flat; depth2 chain @62 flat
+
+- 2026-09-23 16:21 cycle=125 label=sterile arch=additions metric=56 hyp=Sun 1-cell UV perturb CSE (1600) brent_ok=80 best_cse=66; 3-flip greedy support 0 imp; relaxed-strict @56 flat
+
+- 2026-09-23 16:22 cycle=126 label=sterile arch=rank metric=27 hyp=Schoolbook 10% plus compact hunt brent0=176 best_compact=27; Stap 2-cell UV perturb 1/1400; interleave @56 best=56
+
 - 2026-09-23 16:01 cycle=114 label=sterile arch=rank metric=27 hyp=Schoolbook rank-27 walks that always accept strict Brent-residual decreases (plus occasional uphill) visit Brent=0 often
 
 - 2026-09-23 16:05 cycle=115 label=sterile arch=support metric=152 hyp=Stapleton support=152 is not a greedy local minimum under Brent=0 flips: batch hill-climb (pick best of 36 flips per ste
@@ -277,3 +287,17 @@ Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 - 2026-09-23 16:08 cycle=120 label=sterile arch=additions metric=56 hyp=Four-term full (U,V,W) grafts from Stapleton into Sun (k=4, 500 samples) achieve Brent-ok on the shared tensor where k=1
 
 - 2026-09-23 16:08 cycle=121 label=sterile arch=additions metric=56 hyp=Sun SIDES0@56 admits strict add_inter with ≥2 final shortenings (level-1); chaining two such moves (depth-2) reaches cer
+
+- 2026-09-23 16:18 cycle=122 label=sterile arch=additions metric=56 hyp=Two-term full triple grafts from Laderman into Sun (550 samples) Brent-close on the shared 729-d tensor where Stap↔Sun g
+
+- 2026-09-23 16:19 cycle=123 label=sterile arch=additions metric=56 hyp=Random Sun/Stap partition grafts with 5–18 donor terms (450 samples) Brent-close on the shared tensor—partial masks may 
+
+- 2026-09-23 16:19 cycle=124 label=sterile arch=support metric=152 hyp=Single-entry UV perturbations on Stapleton (re-solved W, 1700 trials) produce Brent-ok rank-23 factorizations in a neigh
+
+- 2026-09-23 16:20 python cycle=126 label=flat arch=support metric=152 tool=support_same_term_uv_edit.py
+
+- 2026-09-23 16:21 cycle=125 label=sterile arch=additions metric=56 hyp=Single-entry UV perturbations on Sun56 (re-solved W, 1600 trials) hit Brent-ok neighborhoods with greedy CSE certified t
+
+- 2026-09-23 16:21 cycle=126 label=sterile arch=rank metric=27 hyp=Plus-heavy schoolbook walk (10% plus, 4.5k steps) visits Brent=0 often enough that compact_rank drops below 23—rank-27 s
+
+- 2026-09-23 16:23 python cycle=128 label=flat arch=support metric=152 tool=support_random_rank23.py

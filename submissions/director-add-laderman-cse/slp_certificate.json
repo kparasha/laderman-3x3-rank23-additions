@@ -1,0 +1,31 @@
+{
+  "src": "submissions/smoke-baseline/solution.json",
+  "greedy_baseline": 73,
+  "certified_cost": 65,
+  "breakdown": {
+    "U": 16,
+    "V": 17,
+    "W": 32
+  },
+  "improved": false,
+  "beat_baseline": true,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 153,
+  "improvements": 5,
+  "hist": {
+    "65": 3,
+    "66": 24,
+    "67": 53,
+    "68": 137,
+    "69": 281,
+    "70": 483,
+    "71": 587,
+    "72": 585,
+    "73": 458,
+    "74": 263,
+    "75": 95,
+    "76": 25,
+    "77": 7
+  }
+}

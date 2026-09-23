@@ -1,0 +1,11 @@
+{
+  "start_total": 62,
+  "best_total": 62,
+  "best_W": 31,
+  "improved": false,
+  "start_W_neighbors": 0,
+  "expanded": 1,
+  "visited": 1,
+  "brent_ok": true,
+  "elapsed_s": 2.392123222351074
+}

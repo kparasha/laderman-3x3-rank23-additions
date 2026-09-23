@@ -1,0 +1,12 @@
+{
+  "trials": 900,
+  "brent_ok": 0,
+  "scored": 0,
+  "best_additions": null,
+  "best_support": null,
+  "le56": 0,
+  "lt152": 0,
+  "improved_add": false,
+  "improved_sup": false,
+  "elapsed_s": 3.90069317817688
+}

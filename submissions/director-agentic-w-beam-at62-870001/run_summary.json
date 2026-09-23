@@ -1,0 +1,12 @@
+{
+  "src": "submissions/director-agentic-sun-cse-hill/sides.json",
+  "start_W": 31,
+  "W": 31,
+  "total": 62,
+  "start_neighbors": 0,
+  "expanded": 1,
+  "visited": 1,
+  "improved": false,
+  "elapsed_s": 3.970693826675415,
+  "brent_ok": true
+}

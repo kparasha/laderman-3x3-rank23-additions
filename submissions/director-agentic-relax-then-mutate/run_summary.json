@@ -1,0 +1,17 @@
+{
+  "at56": {
+    "start_cost": 56,
+    "portals": 30,
+    "best_cost": 56,
+    "improved": false
+  },
+  "at62": {
+    "start_cost": 62,
+    "portals": 40,
+    "best_cost": 62,
+    "improved": false
+  },
+  "global_best": 56,
+  "beats56": false,
+  "elapsed_s": 23.210062980651855
+}

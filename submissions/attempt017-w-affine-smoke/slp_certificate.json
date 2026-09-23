@@ -1,0 +1,14 @@
+{
+  "note": "Sun start; greedy_CSE=66; lit_ref=56",
+  "improved": false,
+  "greedy_baseline": 66,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 175,
+  "breakdown": {
+    "U": 19,
+    "V": 16,
+    "W": 31
+  },
+  "certified_cost": 66
+}

@@ -1,0 +1,31 @@
+{
+  "src": "submissions/perminov58/solution.json",
+  "greedy_baseline": 71,
+  "certified_cost": 66,
+  "breakdown": {
+    "U": 16,
+    "V": 15,
+    "W": 35
+  },
+  "improved": false,
+  "beat_baseline": true,
+  "brent_ok": true,
+  "rank": 23,
+  "support": 175,
+  "improvements": 5,
+  "hist": {
+    "66": 2,
+    "67": 12,
+    "68": 45,
+    "69": 140,
+    "70": 376,
+    "71": 649,
+    "72": 900,
+    "73": 863,
+    "74": 618,
+    "75": 313,
+    "76": 70,
+    "77": 11,
+    "78": 2
+  }
+}
