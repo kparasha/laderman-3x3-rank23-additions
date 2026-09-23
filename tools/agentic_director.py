@@ -6,7 +6,9 @@ ledger (not a fixed strategies.json queue).
 
   .venv/bin/python -u tools/agentic_director.py --once
   .venv/bin/python -u tools/agentic_director.py --max-cycles 20 --timeout 3600 --timeout-max 5400
-  bash tools/resume_overnight.sh   # caffeinate-wrapped overnight
+  bash tools/resume_overnight.sh              # director + caffeinate wake-lock
+  bash tools/resume_overnight.sh --no-caffeinate
+  bash tools/resume_overnight.sh --detach-caffeine   # morning / off AC; climb keeps going
 
 Auth: CURSOR_API_KEY in the environment or a gitignored .env at repo root.
 Requires Python >=3.10 and cursor-sdk (see requirements.txt).
@@ -46,7 +48,12 @@ Hard facts (do not re-run these neighborhoods with the same seeds/moves):
 - Stapleton 2/3-edit: accept_rate~8.5% but improved=0 over ~2M edits (plateau at 152).
 - Scheme CSE Stapleton/Perminov/Laderman bottoms ~64–66 with le56=0.
 - Multi-seed support stuck at 152; flipgraph/rank-drop found no exact rank<23.
-Priority: additions (certified SLP <56 @ rank 23) → support <152 → rank <23.
+Targets (any win counts): certified SLP additions <56 @ rank 23; support <152; rank <23.
+Metric choice: OPPORTUNISTIC — you pick additions / support / rank each cycle from the
+ledger, learnings, and your hypothesis. Cross-pollination is encouraged (e.g. a support
+or rank move that also unlocks additions, or shared tools/seeds across arches). There is
+no fixed rotation or hard priority order; human “additions first” was only a guess about
+what might move sooner — override it whenever another arch looks more promising.
 Baselines: Sun56 adds=56, Stapleton support=152, rank=23.
 """.strip()
 
@@ -438,7 +445,10 @@ Recent tools/:
 {chr(10).join(recent_tool_files())}
 
 MANDATE for this cycle:
-1. Propose ONE non-duplicate hypothesis that could beat adds<56 or support<152 or rank<23.
+1. Opportunistically choose ONE arch (additions|support|rank) and ONE non-duplicate
+   hypothesis that could beat that arch's threshold (<56 / <152 / <23). Use the ledger
+   and learnings; cross-pollinate freely (ideas/tools/seeds from one arch informing another).
+   Do not follow a fixed additions→support→rank order.
 2. You MAY write a new tool under tools/ and run a BOUNDDED search (smoke first).
 3. While any tool runs >2 minutes, refresh logs/agent_heartbeat.json roughly every 2–3 minutes:
    {{"ts": <unix_seconds>, "status": "short status", "eta_s": <seconds or null>, "cycle": {st.get('cycle', 0)}}}
@@ -481,7 +491,7 @@ def update_journal(st: dict, last: dict) -> None:
         JOURNAL.write_text(new, encoding="utf-8")
     phase = (
         f'<div><strong>Phase</strong> agentic Cursor SDK director '
-        f'(local · caffeinate overnight)</div>'
+        f'(local · wake-lock optional via resume_overnight)</div>'
     )
     new2, n2 = re.subn(
         r"<div><strong>Phase</strong>[^<]*</div>",
